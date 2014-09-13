@@ -1,7 +1,7 @@
 #include "make_ref.h"
 #include "InfoVisitor.h"
 #include "board_def.h"
-#include "board_utils.h"
+#include "Board.h"
 
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
@@ -13,16 +13,16 @@
 
 int main(int argc, char** argv)
 {
-    osg::ArgumentParser arguments( &argc, argv );
+//    osg::ArgumentParser arguments( &argc, argv );
+//
+//    std::string test_opt;
+//    arguments.read("--test_option", test_opt);
 
-    std::string test_opt;
-    arguments.read("--test_option", test_opt);
 
-
-    auto board = drawBoard(boardSizeX, boardSizeY, initBoard(boardDefinition));
+    auto board = Board(boardDefinition, boardSizeX, boardSizeY);
 
     auto main_obj = make_ref<osg::Group>();
-    main_obj->addChild(board);
+    main_obj->addChild(board.draw().get());
 
     // init rotate
     auto init_rotate = make_ref<osg::MatrixTransform>();
