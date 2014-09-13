@@ -1,9 +1,9 @@
+#include "make_ref.h"
+
 #include <string>
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
 #include <osgViewer/Viewer>
-using namespace std;
-
 
 int main(int argc, char** argv)
 {
@@ -12,24 +12,21 @@ int main(int argc, char** argv)
     std::string testOpt;
     arguments.read("--test_option", testOpt);
 
+    auto shape1 = make_ref<osg::ShapeDrawable>();
+    shape1->setShape( new osg::Box(osg::Vec3(-10.0f, 0.0f, 0.0f),
+            1.0f, 8.0f, 50.0f) );
 
-    osg::ref_ptr<osg::ShapeDrawable> shape1 = new osg::ShapeDrawable;
-    shape1->setShape( new osg::Box(osg::Vec3(-3.0f, 0.0f, 0.0f),
-            2.0f, 2.0f, 1.0f) );
-    osg::ref_ptr<osg::ShapeDrawable> shape2 = new osg::ShapeDrawable;
-    shape2->setShape( new osg::Sphere(osg::Vec3(3.0f, 0.0f, 0.0f),
-            1.0f) );
+    auto shape2 = make_ref<osg::ShapeDrawable>();
+    shape2->setShape( new osg::Box(osg::Vec3(0.0f, 0.0f, 0.0f),
+            1.0f, 8.0f, 50.0f) );
     shape2->setColor( osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f) );
-    osg::ref_ptr<osg::ShapeDrawable> shape3 = new osg::ShapeDrawable;
-    shape3->setShape( new osg::Cone(osg::Vec3(0.0f, 0.0f, 0.0f),
-            1.0f, 1.0f) );
-    shape3->setColor( osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f) );
 
 
     osg::ref_ptr<osg::Geode> root = new osg::Geode;
     root->addDrawable( shape1.get() );
     root->addDrawable( shape2.get() );
-    root->addDrawable( shape3.get() );
+    //root->addDrawable( shape3.get() );
+
 
     osgViewer::Viewer viewer;
     viewer.setSceneData( root.get() );
