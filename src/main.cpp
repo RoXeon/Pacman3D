@@ -13,6 +13,7 @@
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
 #include <osgGA/UFOManipulator>
+#include <osgDB/ReadFile>
 
 int main(int argc, char** argv)
 {
@@ -37,19 +38,10 @@ int main(int argc, char** argv)
 
     // init rotate
     auto init_rotate = make_ref<osg::MatrixTransform>();
-    init_rotate->setMatrix( osg::Matrix::rotate(osg::PI * 2, osg::Vec3(1.0f, 0.0f, 0.0f)) );
-
-    // spin meta-group
-    auto spin = make_ref<osg::MatrixTransform>();
-
-    // presentation rotate
-    auto pres_rotate = make_ref<osg::MatrixTransform>();
-    pres_rotate->setMatrix( osg::Matrix::rotate(osg::PI / 32, osg::Vec3(1.0f, 0.0f, 0.0f)) );
-    pres_rotate->addChild( main_obj.get() );
+    init_rotate->setMatrix( osg::Matrix::rotate(osg::PI / 2, osg::Vec3(1.0f, 0.0f, 0.0f)) );
 
     // chain rotates
     init_rotate->addChild(main_obj);
-    spin->addChild(pres_rotate);
 
     // Root group
     auto root = make_ref<osg::Group>();
@@ -62,16 +54,15 @@ int main(int argc, char** argv)
     // Start viewer
     osgViewer::Viewer viewer;
 
-    double height = std::min(board.getFieldSizeX(), board.getFieldSizeY()) / 1.5;
-    auto manipulator = new osgGA::UFOManipulator();
-    viewer.setCameraManipulator(manipulator);
-    viewer.getCameraManipulator()->setHomePosition(
-            osg::Vec3d(board.getFieldCenterX(1), board.getFieldCenterY(10), height),
-            osg::Vec3d(0.0f, 0.0f, height),
-            osg::Vec3d(0.0f, 0.0f, 1.0f)
-    );
-    manipulator->setForwardSpeed(5000);
-    viewer.home();
+//    double height = std::min(board.getFieldSizeX(), board.getFieldSizeY()) / 1.5;
+//    auto manipulator = new osgGA::UFOManipulator();
+//    viewer.setCameraManipulator(manipulator);
+//    viewer.getCameraManipulator()->setHomePosition(
+//            osg::Vec3d(board.getFieldCenterX(1), board.getFieldCenterY(10), height),
+//            osg::Vec3d(0.0f, 0.0f, height),
+//            osg::Vec3d(0.0f, 0.0f, 1.0f)
+//    );
+//    viewer.home();
 
     viewer.setSceneData( root.get() );
     return viewer.run();

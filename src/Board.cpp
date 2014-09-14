@@ -92,6 +92,16 @@ std::vector<std::tuple<uint32_t, uint32_t>> Board::getEmptyFields() const
     return std::move(empty);
 }
 
+uint32_t Board::getFieldX(double x) const
+{
+    return static_cast<uint32_t >(x / getFieldSizeX());
+}
+
+uint32_t Board::getFieldY(double y) const
+{
+    return getFieldCountY() - (1 + static_cast<uint32_t >(y / getFieldSizeY()));
+}
+
 osg::ref_ptr<osg::Node> Board::draw() const
 {
     auto normalize = osg::Vec3d(0.0f, 0.0f, 0.0f);

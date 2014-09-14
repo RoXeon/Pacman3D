@@ -68,3 +68,14 @@ osg::ref_ptr<osg::AnimationPathCallback> NPC::getPathCallback()
 {
     return m_pathCallback;
 }
+
+
+void NPC::setRotationCallback(osg::ref_ptr<osg::AnimationPathCallback> pathCallback)
+{
+    m_rotationCallback = pathCallback;
+}
+
+osg::ref_ptr<osg::AnimationPathCallback> NPC::getRotationCallback()
+{
+    return m_rotationCallback;
+}
