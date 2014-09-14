@@ -61,8 +61,8 @@ private:
                     cp1.setRotation(targetRotation);
 
                     auto path = make_ref<osg::AnimationPath>();
-                    path->insert(last, cp1);
-                    path->insert(last + 0.1, cp1);
+                    path->insert(last, cp0);
+                    path->insert(last + 0.5, cp1);
                     path->setLoopMode(osg::AnimationPath::NO_LOOPING);
 
                     npc.getRotationCallback()->setAnimationPath(path);
