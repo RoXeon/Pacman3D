@@ -2,14 +2,16 @@
 #include "InfoVisitor.h"
 #include "board_def.h"
 #include "Board.h"
+#include "NPC.h"
+#include "GhostFactory.h"
+
+#include <iostream>
+#include <thread>
 
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
-#include <osg/AnimationPath>
-#include <osg/Camera>
-
 
 int main(int argc, char** argv)
 {
@@ -18,11 +20,19 @@ int main(int argc, char** argv)
 //    std::string test_opt;
 //    arguments.read("--test_option", test_opt);
 
+    std::srand ( unsigned ( std::time(0) ) );
 
     auto board = Board(boardDefinition, boardSizeX, boardSizeY);
+    auto ghostFactory = GhostFactory();
 
     auto main_obj = make_ref<osg::Group>();
     main_obj->addChild(board.draw().get());
+
+    auto ghostCount = 16;
+    while(ghostCount--)
+    {
+        main_obj->addChild(ghostFactory.drawGhost(board).get());
+    }
 
     // init rotate
     auto init_rotate = make_ref<osg::MatrixTransform>();
@@ -43,31 +53,6 @@ int main(int argc, char** argv)
     // Root group
     auto root = make_ref<osg::Group>();
     root->addChild(init_rotate);
-
-
-    // Spin animation path
-//    auto spin_cp1 = osg::AnimationPath::ControlPoint();
-//    auto spin_cp2 = osg::AnimationPath::ControlPoint();
-//    auto spin_cp3 = osg::AnimationPath::ControlPoint();
-//    auto rotate1 = osg::Quat(0, osg::Y_AXIS);
-//    auto rotate2 = osg::Quat(osg::PI, osg::Y_AXIS);
-//    auto rotate3 = osg::Quat(osg::PI * 2, osg::Y_AXIS);
-//    spin_cp1.setRotation(rotate1);
-//    spin_cp2.setRotation(rotate2);
-//    spin_cp3.setRotation(rotate3);
-//
-//    auto spin_path = make_ref<osg::AnimationPath>();
-//    spin_path->insert(0, spin_cp1);
-//    spin_path->insert(10, spin_cp2);
-//    spin_path->insert(20, spin_cp3);
-//    spin_path->setLoopMode(osg::AnimationPath::LOOP);
-//
-//    // Set animation callback
-//    auto spin_callback = make_ref<osg::AnimationPathCallback>();
-//    spin_callback->setAnimationPath(spin_path.get());
-//
-//    spin->addUpdateCallback(spin_callback.get());
-
 
     // Print node graph
     InfoVisitor info;

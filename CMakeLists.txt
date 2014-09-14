@@ -15,7 +15,7 @@ macro(config_project PROJNAME LIBNAME)
     target_link_libraries(${PROJNAME} ${${LIBNAME}_LIBRARY})
 endmacro()
 
-set(SOURCE_FILES src/main.cpp src/InfoVisitor.cpp src/board_utils.cpp src/Board.cpp)
+set(SOURCE_FILES src/main.cpp src/InfoVisitor.cpp src/board_utils.cpp src/Board.cpp src/NPC.cpp src/GhostFactory.cpp)
 add_executable(Pacman3D ${SOURCE_FILES})
 
 config_project(Pacman3D OPENTHREADS)

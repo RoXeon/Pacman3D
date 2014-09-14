@@ -20,12 +20,12 @@ Board::Board(std::vector<std::string>& def, double sizeX, double sizeY)
     }
 
     for(auto& elem : m_fieldMap) {
-        elem.resize(width, false);
+        elem.resize(width, FIELD_EMPTY);
     }
 
     for(auto i = 0; i < height; ++i)
         for(auto j = 0; j < width; ++j)
-            m_fieldMap[i][j] = def[i][j] == '*';
+            m_fieldMap[i][j] = (def[i][j] == '*' ? FIELD_WALL : FIELD_EMPTY);
 }
 
 double Board::getSizeX() const
@@ -68,7 +68,31 @@ double Board::getFieldCenterY(uint32_t y) const
     return getSizeY() - getFieldSizeY() / 2 - y * getFieldSizeY();
 }
 
-osg::ref_ptr<osg::Group> Board::draw() const
+Board::FieldType Board::getField(uint32_t x, uint32_t y) const
+{
+    return m_fieldMap[y][x];
+}
+
+void Board::setField(uint32_t x, uint32_t y, Board::FieldType type)
+{
+    m_fieldMap[y][x] = type;
+}
+
+std::vector<std::tuple<uint32_t, uint32_t>> Board::getEmptyFields() const
+{
+    std::vector<std::tuple<uint32_t, uint32_t>> empty;
+    for(auto y = 0; y < getFieldCountY(); ++y) { // y
+        for(auto x = 0; x < getFieldCountX(); ++x) { // x
+            if(m_fieldMap[y][x] == FieldType::FIELD_EMPTY) {
+                empty.push_back({x, y});
+            }
+        }
+    }
+
+    return std::move(empty);
+}
+
+osg::ref_ptr<osg::Node> Board::draw() const
 {
     auto normalize = osg::Vec3d(0.0f, 0.0f, 0.0f);
 
@@ -80,12 +104,10 @@ osg::ref_ptr<osg::Group> Board::draw() const
 
     for(auto y = 0; y < getFieldCountY(); ++y) { // y
         for(auto x = 0; x < getFieldCountX(); ++x) { // x
-            if(m_fieldMap[y][x]) {
+            if(m_fieldMap[y][x] == FieldType:: FIELD_WALL) {
                 auto center = osg::Vec3d(getFieldCenterX(x), getFieldCenterY(y), blockSizeZ / 2) - normalize;
                 auto dr = make_ref<osg::ShapeDrawable>();
                 dr->setShape(new osg::Box(center, getFieldSizeX() + overlaySize, getFieldSizeY() + overlaySize, blockSizeZ));
-
-
 
                 dr->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
                 auto drgd = make_ref<osg::Geode>();

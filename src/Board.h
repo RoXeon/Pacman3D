@@ -9,6 +9,13 @@
 class Board
 {
 public:
+    enum FieldType
+    {
+        FIELD_EMPTY,
+        FIELD_WALL,
+        FIELD_NPC
+    };
+
     Board(std::vector<std::string>& def, double sizeX, double sizeY);
 
     double getSizeX() const;
@@ -23,14 +30,17 @@ public:
     double getFieldCenterX(uint32_t x) const;
     double getFieldCenterY(uint32_t y) const;
 
+    FieldType getField(uint32_t x, uint32_t y) const;
+    void setField(uint32_t x, uint32_t y, FieldType);
+    std::vector<std::tuple<uint32_t, uint32_t>> getEmptyFields() const;
 
-    osg::ref_ptr<osg::Group> draw() const;
+    osg::ref_ptr<osg::Node> draw() const;
 
 private:
     double m_sizeX;
     double m_sizeY;
 
-    std::vector<std::vector<bool>> m_fieldMap;
+    std::vector<std::vector<FieldType>> m_fieldMap;
 };
 
 #endif // board_h
