@@ -4,6 +4,7 @@
 #include <cassert>
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
+#include <osg/MatrixTransform>
 #include <osg/Fog>
 #include <osg/Geometry>
 #include <osg/Texture2D>
@@ -121,13 +122,93 @@ osg::ref_ptr<osg::Node> Board::draw() const
         for(auto x = 0; x < getFieldCountX(); ++x) { // x
             if(m_fieldMap[y][x] == FieldType:: FIELD_WALL) {
                 auto center = osg::Vec3d(getFieldCenterX(x), getFieldCenterY(y), blockSizeZ / 2) - normalize;
-                auto dr = make_ref<osg::ShapeDrawable>();
-                dr->setShape(new osg::Box(center, getFieldSizeX() + overlaySize, getFieldSizeY() + overlaySize, blockSizeZ));
-                dr->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
-
-                auto XMod = osg::Vec3d{getFieldSizeX() / 2 + overlaySize, 0, 0};
-                auto YMod = osg::Vec3d{0, getFieldSizeY() / 2 + overlaySize, 0};
-                auto ZMod = osg::Vec3d{0, 0, blockSizeZ / 2};
+//                auto dr = make_ref<osg::ShapeDrawable>();
+//                dr->setShape(new osg::Box(center, getFieldSizeX() + overlaySize, getFieldSizeY() + overlaySize, blockSizeZ));
+//                dr->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
+//
+//                auto XMod = osg::Vec3d{getFieldSizeX() / 2 + overlaySize, 0, 0};
+//                auto YMod = osg::Vec3d{0, getFieldSizeY() / 2 + overlaySize, 0};
+//                auto ZMod = osg::Vec3d{0, 0, blockSizeZ / 2};
+//
+//                osg::Geode* WallGeode = new osg::Geode();
+//                osg::Geometry* WallGeometry = new osg::Geometry();
+//
+//                WallGeode->addDrawable(WallGeometry);
+//                //specify vertices
+//                osg::Vec3dArray* WallVertices = new osg::Vec3dArray;
+//
+//
+//
+//                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center - YMod)[1], (center - ZMod)[2]) ); // front left
+//                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center - YMod)[1], (center - ZMod)[2]) ); // front right
+//                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center + YMod)[1], (center - ZMod)[2]) ); // back right
+//                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center + YMod)[1], (center - ZMod)[2]) ); // back left
+//                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center - YMod)[1], (center + ZMod)[2]) ); // front left
+//                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center - YMod)[1], (center + ZMod)[2]) ); // front right
+//                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center + YMod)[1], (center + ZMod)[2]) ); // back right
+//                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center + YMod)[1], (center + ZMod)[2]) ); // back left
+//                WallGeometry->setVertexArray( WallVertices );
+//
+//                //specify the kind of geometry we want to draw here
+//                osg::DrawElementsUInt* WallBase = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
+//                //specify the order we want to draw the base of our geometry
+//                WallBase->push_back(0);
+//                WallBase->push_back(1);
+//                WallBase->push_back(2);
+//                WallBase->push_back(3);
+//                                                        // 0 3        4 7
+//                WallBase->push_back(4);                 // 1 2        5 6
+//                WallBase->push_back(5);
+//                WallBase->push_back(6);
+//                WallBase->push_back(7);
+//
+//                WallBase->push_back(0);
+//                WallBase->push_back(1);
+//                WallBase->push_back(5);
+//                WallBase->push_back(4);
+//
+//                WallBase->push_back(2);
+//                WallBase->push_back(3);
+//                WallBase->push_back(7);
+//                WallBase->push_back(6);
+////
+////
+//                WallBase->push_back(0);
+//                WallBase->push_back(3);
+//                WallBase->push_back(7);
+//                WallBase->push_back(4);
+//
+//
+//                WallBase->push_back(1);
+//                WallBase->push_back(2);
+//                WallBase->push_back(6);
+//                WallBase->push_back(5);
+//                WallGeometry->addPrimitiveSet(WallBase);
+//
+//
+//                osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
+//
+//                texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
+//                texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
+//                texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
+//                texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
+//
+//
+//                texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
+//                texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
+//                texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
+//                texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
+//                WallGeometry->setTexCoordArray( 0, texcoords.get() );
+////
+////
+//                osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
+//                osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/wall3_small.bmp" );
+//                texture->setImage( image.get() );
+//
+//                auto drgd = make_ref<osg::Geode>();
+//
+//                drgd->addDrawable(dr);
+//                WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
 
                 osg::Geode* WallGeode = new osg::Geode();
                 osg::Geometry* WallGeometry = new osg::Geometry();
@@ -135,78 +216,66 @@ osg::ref_ptr<osg::Node> Board::draw() const
                 WallGeode->addDrawable(WallGeometry);
                 //specify vertices
                 osg::Vec3dArray* WallVertices = new osg::Vec3dArray;
-                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center - YMod)[1], (center - ZMod)[2]) ); // front left
-                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center - YMod)[1], (center - ZMod)[2]) ); // front right
-                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center + YMod)[1], (center - ZMod)[2]) ); // back right
-                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center + YMod)[1], (center - ZMod)[2]) ); // back left
-                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center - YMod)[1], (center + ZMod)[2]) ); // front left
-                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center - YMod)[1], (center + ZMod)[2]) ); // front right
-                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center + YMod)[1], (center + ZMod)[2]) ); // back right
-                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center + YMod)[1], (center + ZMod)[2]) ); // back left
+
+                uint32_t lod = 100;
+                double totalSizeX = getFieldSizeX();
+                double totalSizeY = getFieldSizeY();
+                double totalSizeZ = blockSizeZ;
+
+                double sizeX = totalSizeX / lod;
+                double sizeY = totalSizeY / lod;
+                double sizeZ = totalSizeZ / lod;
+
+                for(int i = 0; i < lod; ++i) {
+                    for(int j = 0; j < lod; ++j) {
+                        WallVertices->push_back(osg::Vec3d(0, j * sizeY, i * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(0, j * sizeY, i * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(0, j * sizeY + sizeY, i * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(0, j * sizeY + sizeY, i * sizeZ));
+                    }
+                }
+
+                for(int i = 0; i < lod; ++i) {
+                    for(int j = 0; j < lod; ++j) {
+                        WallVertices->push_back(osg::Vec3d(totalSizeX, j * sizeY, i * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(totalSizeX, j * sizeY, i * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(totalSizeX, j * sizeY + sizeY, i * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(totalSizeX, j * sizeY + sizeY, i * sizeZ));
+                    }
+                }
+
+                for(int i = 0; i < lod; ++i) {
+                    for(int j = 0; j < lod; ++j) {
+                        WallVertices->push_back(osg::Vec3d(i * sizeX, 0, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX + sizeX, 0, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX + sizeX, 0, j * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX, 0, j * sizeZ + sizeZ));
+                    }
+                }
+
+                for(int i = 0; i < lod; ++i) {
+                    for(int j = 0; j < lod; ++j) {
+                        WallVertices->push_back(osg::Vec3d(i * sizeX, totalSizeZ, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX + sizeX, totalSizeZ, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX + sizeX, totalSizeZ, j * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX, totalSizeZ, j * sizeZ + sizeZ));
+                    }
+                }
+
                 WallGeometry->setVertexArray( WallVertices );
 
                 //specify the kind of geometry we want to draw here
                 osg::DrawElementsUInt* WallBase = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-                //specify the order we want to draw the base of our geometry
-                WallBase->push_back(0);
-                WallBase->push_back(1);
-                WallBase->push_back(2);
-                WallBase->push_back(3);
-                                                        // 0 3        4 7
-                WallBase->push_back(4);                 // 1 2        5 6
-                WallBase->push_back(5);
-                WallBase->push_back(6);
-                WallBase->push_back(7);
+                for(int i = 0; i < lod * lod * 4 * 4; ++i)
+                    WallBase->push_back(i);
 
-                WallBase->push_back(0);
-                WallBase->push_back(1);
-                WallBase->push_back(5);
-                WallBase->push_back(4);
-
-                WallBase->push_back(2);
-                WallBase->push_back(3);
-                WallBase->push_back(7);
-                WallBase->push_back(6);
-//
-//
-                WallBase->push_back(0);
-                WallBase->push_back(3);
-                WallBase->push_back(7);
-                WallBase->push_back(4);
-
-
-                WallBase->push_back(1);
-                WallBase->push_back(2);
-                WallBase->push_back(6);
-                WallBase->push_back(5);
                 WallGeometry->addPrimitiveSet(WallBase);
 
+                auto translate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(getFieldCenterX(x), getFieldCenterY(y), 0));
 
-                osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
+                translate->addChild(WallGeode);
 
-                texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
-                texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
-                texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
-                texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
-
-
-                texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
-                texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
-                texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
-                texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
-                WallGeometry->setTexCoordArray( 0, texcoords.get() );
-//
-//
-                osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-                osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/wall3_small.bmp" );
-                texture->setImage( image.get() );
-
-                auto drgd = make_ref<osg::Geode>();
-
-                drgd->addDrawable(dr);
-                WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
-
-                boardObj->addChild(WallGeode);
+                boardObj->addChild(translate);
             }
         }
     }
