@@ -84,7 +84,7 @@ std::vector<std::tuple<uint32_t, uint32_t>> Board::getEmptyFields() const
     for(auto y = 0; y < getFieldCountY(); ++y) { // y
         for(auto x = 0; x < getFieldCountX(); ++x) { // x
             if(m_fieldMap[y][x] == FieldType::FIELD_EMPTY) {
-                empty.push_back({x, y});
+                empty.push_back(std::tuple<uint32_t, uint32_t>{x, y});
             }
         }
     }

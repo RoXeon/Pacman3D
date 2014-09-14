@@ -1,5 +1,8 @@
 #include "NPC.h"
 
+#include <algorithm>
+#include <random>
+
 NPC::NPC(Board* board, uint32_t rootX, uint32_t rootY)
     : m_rootX(rootX)
     , m_rootY(rootY)
@@ -18,8 +21,11 @@ Board* NPC::getBoard() const
 
 NPC::Direction* NPC::changeDirection()
 {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+
     std::vector<NPC::Direction*> directions = { &DirectionUp, &DirectionDown, &DirectionLeft, &DirectionRight };
-    std::random_shuffle(directions.begin(), directions.end(), [](int i){ return std::rand()%i; });
+    std::shuffle(directions.begin(), directions.end(), gen);
 
     return (m_direction = directions[0]);
 }

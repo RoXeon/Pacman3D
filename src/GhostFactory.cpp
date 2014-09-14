@@ -5,14 +5,19 @@
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
 
+#include <algorithm>
+#include <random>
 
 osg::ref_ptr<osg::Node> GhostFactory::drawGhost(Board& board)
 {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+
     double radius = std::min(board.getFieldSizeX(), board.getFieldSizeY()) / 1.5 / 2;
     auto rand = [](int i){ return std::rand()%i; };
 
     auto emptyFields = board.getEmptyFields();
-    std::random_shuffle(emptyFields.begin(), emptyFields.end(), rand);
+    std::shuffle(emptyFields.begin(), emptyFields.end(), gen);
 
     uint32_t fx, fy;
     std::tie(fx, fy) = emptyFields[0];
