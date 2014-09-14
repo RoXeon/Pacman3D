@@ -4,6 +4,7 @@
 #include "Board.h"
 #include "NPC.h"
 #include "GhostFactory.h"
+#include "FPSManipulator.h"
 
 #include <iostream>
 #include <thread>
@@ -12,8 +13,9 @@
 #include <osg/Geode>
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
-#include <osgGA/UFOManipulator>
 #include <osgDB/ReadFile>
+#include <osgGA/KeySwitchMatrixManipulator>
+#include <osgGA/OrbitManipulator>
 
 int main(int argc, char** argv)
 {
@@ -54,16 +56,30 @@ int main(int argc, char** argv)
     // Start viewer
     osgViewer::Viewer viewer;
 
-//    double height = std::min(board.getFieldSizeX(), board.getFieldSizeY()) / 1.5;
-//    auto manipulator = new osgGA::UFOManipulator();
-//    viewer.setCameraManipulator(manipulator);
-//    viewer.getCameraManipulator()->setHomePosition(
-//            osg::Vec3d(board.getFieldCenterX(1), board.getFieldCenterY(10), height),
-//            osg::Vec3d(0.0f, 0.0f, height),
-//            osg::Vec3d(0.0f, 0.0f, 1.0f)
-//    );
-//    viewer.home();
+    double height = std::min(board.getFieldSizeX(), board.getFieldSizeY()) / 1.5;
 
+    auto fpsManipulator = make_ref<FPSManipulator>();
+    fpsManipulator->setHomePosition(
+        osg::Vec3d(board.getFieldCenterX(1), board.getFieldCenterY(10), height),
+        osg::Vec3d(0.0f, 0.0f, height),
+        osg::Vec3d(0.0f, 0.0f, 1.0f)
+    );
+
+
+    auto keySwitch = make_ref<osgGA::KeySwitchMatrixManipulator>();
+    keySwitch->addNumberedMatrixManipulator(make_ref<osgGA::OrbitManipulator>());
+    keySwitch->addNumberedMatrixManipulator(fpsManipulator);
+    viewer.setCameraManipulator(keySwitch);
+
+    viewer.home();
     viewer.setSceneData( root.get() );
+
+    osgViewer::Viewer::Windows windows;
+    viewer.getWindows(windows);
+    for(osgViewer::GraphicsWindow *window: windows)
+    {
+        window->useCursor(false);
+    }
+
     return viewer.run();
 }
