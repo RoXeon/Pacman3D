@@ -13,15 +13,17 @@
 #include <osg/Geode>
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
+#include <osg/Fog>
+#include <osgDB/ReadFile>
 #include <osgGA/KeySwitchMatrixManipulator>
 #include <osgGA/OrbitManipulator>
 
 int main(int argc, char** argv)
 {
-//    osg::ArgumentParser arguments( &argc, argv );
-//
-//    std::string test_opt;
-//    arguments.read("--test_option", test_opt);
+    osg::ArgumentParser arguments( &argc, argv );
+
+    std::string dbPath;
+    arguments.read("--db_path", dbPath);
 
     std::srand ( unsigned ( std::time(0) ) );
 
@@ -31,31 +33,33 @@ int main(int argc, char** argv)
     auto main_obj = make_ref<osg::Group>();
     main_obj->addChild(board.draw().get());
 
+    auto ghostModel = osgDB::readNodeFile(dbPath + "/cow.osg");
     auto ghostCount = 16;
     while(ghostCount--)
     {
-        main_obj->addChild(ghostFactory.drawGhost(board).get());
+        main_obj->addChild(ghostFactory.drawGhost(board, ghostModel).get());
     }
 
     // init rotate
     auto init_rotate = make_ref<osg::MatrixTransform>();
     init_rotate->setMatrix( osg::Matrix::rotate(osg::PI * 2, osg::Vec3(1.0f, 0.0f, 0.0f)) );
 
-    // spin meta-group
-    auto spin = make_ref<osg::MatrixTransform>();
-
-    // presentation rotate
-    auto pres_rotate = make_ref<osg::MatrixTransform>();
-    pres_rotate->setMatrix( osg::Matrix::rotate(osg::PI / 32, osg::Vec3(1.0f, 0.0f, 0.0f)) );
-    pres_rotate->addChild( main_obj.get() );
-
     // chain rotates
     init_rotate->addChild(main_obj);
-    spin->addChild(pres_rotate);
 
     // Root group
     auto root = make_ref<osg::Group>();
     root->addChild(init_rotate);
+
+    // Setup fog
+    osg::ref_ptr<osg::Fog> fog = new osg::Fog;
+    fog->setMode( osg::Fog::EXP );
+    fog->setStart( 0.0f );
+    fog->setEnd(board.getFieldSizeX() * 20);
+    fog->setDensity(0.03);
+    fog->setColor( osg::Vec4(0.5, 0.5, 0.5, 1.0) );
+
+    root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
 
     // Print node graph
     InfoVisitor info;
@@ -72,6 +76,7 @@ int main(int argc, char** argv)
         osg::Vec3d(0.0f, 0.0f, height),
         osg::Vec3d(0.0f, 0.0f, 1.0f)
     );
+
 
     auto keySwitch = make_ref<osgGA::KeySwitchMatrixManipulator>();
     keySwitch->addNumberedMatrixManipulator(make_ref<osgGA::OrbitManipulator>());

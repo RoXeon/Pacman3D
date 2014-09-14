@@ -10,23 +10,24 @@
 
 typedef uint64_t npc_id_type;
 
-class NPC : public osg::Geode
+class NPC : public osg::Group
 {
 public:
     struct Direction {
+        virtual double orientation() = 0;
         virtual int16_t modX() = 0;
         virtual int16_t modY() = 0;
     };
-    struct DirectionUpSt      : Direction { int16_t modX() { return  0; } int16_t modY() { return  1; } } DirectionUp;
-    struct DirectionDownSt    : Direction { int16_t modX() { return  0; } int16_t modY() { return -1; } } DirectionDown;
-    struct DirectionLeftSt    : Direction { int16_t modX() { return -1; } int16_t modY() { return  0; } } DirectionLeft;
-    struct DirectionRightSt   : Direction { int16_t modX() { return  1; } int16_t modY() { return  0; } } DirectionRight;
+    struct DirectionUpSt      : Direction { double orientation() { return osg::PI;      } int16_t modX() { return  0; } int16_t modY() { return  1; } } DirectionUp;
+    struct DirectionDownSt    : Direction { double orientation() { return 0;            } int16_t modX() { return  0; } int16_t modY() { return -1; } } DirectionDown;
+    struct DirectionLeftSt    : Direction { double orientation() { return osg::PI_2;    } int16_t modX() { return -1; } int16_t modY() { return  0; } } DirectionLeft;
+    struct DirectionRightSt   : Direction { double orientation() { return -osg::PI_2;   } int16_t modX() { return  1; } int16_t modY() { return  0; } } DirectionRight;
 
     NPC() = default;
     NPC(Board* board, uint32_t rootX, uint32_t rootY);
 
     NPC(const NPC& copy, const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY)
-            : osg::Geode(copy, copyop), m_id(copy.m_id) {}
+            : osg::Group(copy, copyop), m_id(copy.m_id) {}
     META_Object( osg, NPC );
 
 
@@ -43,9 +44,13 @@ public:
     void setPathCallback(osg::ref_ptr<osg::AnimationPathCallback> pathCallback);
     osg::ref_ptr<osg::AnimationPathCallback> getPathCallback();
 
+    void setRotationCallback(osg::ref_ptr<osg::AnimationPathCallback> pathCallback);
+    osg::ref_ptr<osg::AnimationPathCallback> getRotationCallback();
+
 private:
     npc_id_type m_id;
     osg::ref_ptr<osg::AnimationPathCallback> m_pathCallback;
+    osg::ref_ptr<osg::AnimationPathCallback> m_rotationCallback;
     Direction* m_direction;
 
     uint32_t m_rootX;

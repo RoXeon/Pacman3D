@@ -4,6 +4,7 @@
 #include <cassert>
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
+#include <osg/Fog>
 
 Board::Board(std::vector<std::string>& def, double sizeX, double sizeY)
     : m_sizeX(sizeX)
@@ -90,6 +91,16 @@ std::vector<std::tuple<uint32_t, uint32_t>> Board::getEmptyFields() const
     }
 
     return std::move(empty);
+}
+
+uint32_t Board::getFieldX(double x) const
+{
+    return static_cast<uint32_t >(x / getFieldSizeX());
+}
+
+uint32_t Board::getFieldY(double y) const
+{
+    return getFieldCountY() - (1 + static_cast<uint32_t >(y / getFieldSizeY()));
 }
 
 osg::ref_ptr<osg::Node> Board::draw() const

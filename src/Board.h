@@ -30,6 +30,9 @@ public:
     double getFieldCenterX(uint32_t x) const;
     double getFieldCenterY(uint32_t y) const;
 
+    uint32_t getFieldX(double x) const;
+    uint32_t getFieldY(double y) const;
+
     FieldType getField(uint32_t x, uint32_t y) const;
     void setField(uint32_t x, uint32_t y, FieldType);
     std::vector<std::tuple<uint32_t, uint32_t>> getEmptyFields() const;

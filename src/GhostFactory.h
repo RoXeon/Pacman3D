@@ -10,9 +10,16 @@
 class GhostFactory
 {
 public:
-    osg::ref_ptr<osg::Node> drawGhost(Board& board);
+    osg::ref_ptr<osg::Node> drawGhost(Board& board, osg::Node* model);
 
 private:
+
+    struct LastDirection : osg::Referenced
+    {
+        LastDirection(NPC::Direction* direct) : direction(direct) {};
+        NPC::Direction* direction;
+    };
+
     class MovementVisitor : public osg::NodeVisitor
     {
     public:
@@ -21,20 +28,48 @@ private:
             setTraversalMode(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
         };
 
-        virtual void apply( osg::Geode& node )
+        virtual void apply( osg::Node& node )
         {
             if(std::string(node.className()) == "NPC")
             {
                 auto& npc = dynamic_cast<NPC&>(node);
                 auto animationPath = npc.getPathCallback()->getAnimationPath();
+                auto animationRotation = npc.getRotationCallback()->getAnimationPath();
 
                 auto last = animationPath ? animationPath->getLastTime() : 0;
+                auto lastRotation = animationRotation ? animationRotation->getLastTime() : 0;
 
-                //std::cout << last << " " << npc.getPathCallback()->getAnimationTime() << std::endl;
+                NPC::Direction* direction = npc.getDirection();
+
+                LastDirection* lastDirection = dynamic_cast<LastDirection*>(npc.getRotationCallback()->getUserData());
+
+                if(!lastDirection || lastDirection->direction != direction) {
+                    if(!npc.getRotationCallback()->getUserData()) {
+                        npc.getRotationCallback()->setUserData(new LastDirection(direction));
+                        lastDirection = dynamic_cast<LastDirection*>(npc.getRotationCallback()->getUserData());
+                    }
+
+                    auto rotation = osg::Quat(lastDirection->direction->orientation() + osg::PI_2, osg::Vec3(0.0, 0.0, 1.0));
+                    auto targetRotation = osg::Quat(direction->orientation() + osg::PI_2, osg::Vec3(0.0, 0.0, 1.0));
+
+                    npc.getRotationCallback()->setUserData(new LastDirection(direction));
+
+                    auto cp0 = osg::AnimationPath::ControlPoint();
+                    cp0.setRotation(rotation);
+
+                    auto cp1 = osg::AnimationPath::ControlPoint();
+                    cp1.setRotation(targetRotation);
+
+                    auto path = make_ref<osg::AnimationPath>();
+                    path->insert(last, cp0);
+                    path->insert(last + 0.5, cp1);
+                    path->setLoopMode(osg::AnimationPath::NO_LOOPING);
+
+                    npc.getRotationCallback()->setAnimationPath(path);
+                }
 
                 if(!animationPath || npc.getPathCallback()->getAnimationTime() > last) {
 
-                    NPC::Direction* direction = npc.getDirection();
                     uint32_t cx, cy, rx, ry, tx, ty;
                     std::tie(cx, cy) = npc.getCurrentPosition();
                     std::tie(rx, ry) = npc.getRootPosition();
@@ -54,11 +89,14 @@ private:
                         double targetX = npc.getBoard()->getFieldCenterX(tx);
                         double targetY = npc.getBoard()->getFieldCenterY(ty);
 
+                        auto rotation = osg::Quat(direction->orientation(), osg::Vec3(0.0, 0.0, 1.0));
+                        auto cp0 = osg::AnimationPath::ControlPoint();
+                        cp0.setRotation(rotation);
                         auto cp1 = osg::AnimationPath::ControlPoint(osg::Vec3(lastX - rootX, lastY - rootY, 0.0));
                         auto cp2 = osg::AnimationPath::ControlPoint(osg::Vec3(targetX - rootX, targetY - rootY, 0.0));
 
                         auto path = make_ref<osg::AnimationPath>();
-                        path->insert(last, cp1);
+                        path->insert(last + 0.005, cp1);
                         path->insert(last + 0.5, cp2);
                         path->setLoopMode(osg::AnimationPath::NO_LOOPING);
 
