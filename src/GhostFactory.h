@@ -10,7 +10,7 @@
 class GhostFactory
 {
 public:
-    osg::ref_ptr<osg::Node> drawGhost(Board& board);
+    osg::ref_ptr<osg::Node> drawGhost(Board& board, osg::Node* model);
 
 private:
 
@@ -41,21 +41,18 @@ private:
 
                 NPC::Direction* direction = npc.getDirection();
 
-                //std::cout << last << " " << npc.getPathCallback()->getAnimationTime() << std::endl;
-
-
-                // For now - not used
-                if(!npc.getRotationCallback()->getUserData()) {
-                    npc.getRotationCallback()->setUserData(new LastDirection(direction));
-                }
-
                 LastDirection* lastDirection = dynamic_cast<LastDirection*>(npc.getRotationCallback()->getUserData());
 
-                if(lastDirection->direction != direction) {
+                if(!lastDirection || lastDirection->direction != direction) {
+                    if(!npc.getRotationCallback()->getUserData()) {
+                        npc.getRotationCallback()->setUserData(new LastDirection(direction));
+                        lastDirection = dynamic_cast<LastDirection*>(npc.getRotationCallback()->getUserData());
+                    }
+
                     auto rotation = osg::Quat(lastDirection->direction->orientation() + osg::PI_2, osg::Vec3(0.0, 0.0, 1.0));
                     auto targetRotation = osg::Quat(direction->orientation() + osg::PI_2, osg::Vec3(0.0, 0.0, 1.0));
 
-                    npc.getRotationCallback()->setUserData(0);
+                    npc.getRotationCallback()->setUserData(new LastDirection(direction));
 
                     auto cp0 = osg::AnimationPath::ControlPoint();
                     cp0.setRotation(rotation);
@@ -64,8 +61,8 @@ private:
                     cp1.setRotation(targetRotation);
 
                     auto path = make_ref<osg::AnimationPath>();
-                    path->insert(last, cp0);
-                    path->insert(last + 0.5, cp1);
+                    path->insert(last, cp1);
+                    path->insert(last + 0.1, cp1);
                     path->setLoopMode(osg::AnimationPath::NO_LOOPING);
 
                     npc.getRotationCallback()->setAnimationPath(path);

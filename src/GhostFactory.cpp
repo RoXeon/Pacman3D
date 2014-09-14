@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <random>
 
-osg::ref_ptr<osg::Node> GhostFactory::drawGhost(Board& board)
+osg::ref_ptr<osg::Node> GhostFactory::drawGhost(Board& board, osg::Node* ghostModel)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -33,15 +33,12 @@ osg::ref_ptr<osg::Node> GhostFactory::drawGhost(Board& board)
     auto ghost = make_ref<osg::ShapeDrawable>();
     auto ghostGeode = make_ref<osg::Geode>();
 
-    auto robot = osgDB::readNodeFile("/Users/RoXeon/Projects/Pacman3D/cow.osg");
-
-    ghost->setShape(new osg::Sphere(osg::Vec3d{0, 0, 0}, radius));
-    ghost->setColor(osg::Vec4(rand(2), rand(2), rand(2), rand(2)));
-
-    ghostGeode->addDrawable(ghost);
+//    ghost->setShape(new osg::Sphere(osg::Vec3d{0, 0, 0}, radius));
+//    ghost->setColor(osg::Vec4(rand(2), rand(2), rand(2), rand(2)));
+//    ghostGeode->addDrawable(ghost);
 
     auto npc = make_ref<NPC>(&board, fx, fy);
-    npc->addChild(robot);
+    npc->addChild(ghostModel);
 
     ghostRotation->addChild(npc);
     ghostRootPos->addChild(ghostRotation);
