@@ -4,6 +4,7 @@
 #include "Board.h"
 #include "NPC.h"
 #include "GhostFactory.h"
+#include "FPSManipulator.h"
 
 #include <iostream>
 #include <thread>
@@ -12,6 +13,8 @@
 #include <osg/Geode>
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
+#include <osgGA/KeySwitchMatrixManipulator>
+#include <osgGA/OrbitManipulator>
 
 int main(int argc, char** argv)
 {
@@ -36,7 +39,7 @@ int main(int argc, char** argv)
 
     // init rotate
     auto init_rotate = make_ref<osg::MatrixTransform>();
-    init_rotate->setMatrix( osg::Matrix::rotate(osg::PI / 2, osg::Vec3(1.0f, 0.0f, 0.0f)) );
+    init_rotate->setMatrix( osg::Matrix::rotate(osg::PI * 2, osg::Vec3(1.0f, 0.0f, 0.0f)) );
 
     // spin meta-group
     auto spin = make_ref<osg::MatrixTransform>();
@@ -60,9 +63,30 @@ int main(int argc, char** argv)
 
     // Start viewer
     osgViewer::Viewer viewer;
+
+    double height = std::min(board.getFieldSizeX(), board.getFieldSizeY()) / 1.5;
+
+    auto fpsManipulator = make_ref<FPSManipulator>();
+    fpsManipulator->setHomePosition(
+        osg::Vec3d(board.getFieldCenterX(1), board.getFieldCenterY(10), height),
+        osg::Vec3d(0.0f, 0.0f, height),
+        osg::Vec3d(0.0f, 0.0f, 1.0f)
+    );
+
+    auto keySwitch = make_ref<osgGA::KeySwitchMatrixManipulator>();
+    keySwitch->addNumberedMatrixManipulator(make_ref<osgGA::OrbitManipulator>());
+    keySwitch->addNumberedMatrixManipulator(fpsManipulator);
+    viewer.setCameraManipulator(keySwitch);
+
+    viewer.home();
     viewer.setSceneData( root.get() );
 
-    //auto camera = make_ref<osg::Camera()
-    //viewer.setCamera(camera);
+    osgViewer::Viewer::Windows windows;
+    viewer.getWindows(windows);
+    for(osgViewer::GraphicsWindow *window: windows)
+    {
+        window->useCursor(false);
+    }
+
     return viewer.run();
 }
