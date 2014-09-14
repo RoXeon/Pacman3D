@@ -120,7 +120,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
 
     for(auto y = 0; y < getFieldCountY(); ++y) { // y
         for(auto x = 0; x < getFieldCountX(); ++x) { // x
-            if(m_fieldMap[y][x] == FieldType:: FIELD_WALL) {
+            if(m_fieldMap[y][x] == FieldType::FIELD_WALL) {
                 auto center = osg::Vec3d(getFieldCenterX(x), getFieldCenterY(y), blockSizeZ / 2) - normalize;
 //                auto dr = make_ref<osg::ShapeDrawable>();
 //                dr->setShape(new osg::Box(center, getFieldSizeX() + overlaySize, getFieldSizeY() + overlaySize, blockSizeZ));
@@ -217,7 +217,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
                 //specify vertices
                 osg::Vec3dArray* WallVertices = new osg::Vec3dArray;
 
-                uint32_t lod = 100;
+                uint32_t lod = 10;
                 double totalSizeX = getFieldSizeX();
                 double totalSizeY = getFieldSizeY();
                 double totalSizeZ = blockSizeZ;
@@ -255,10 +255,10 @@ osg::ref_ptr<osg::Node> Board::draw() const
 
                 for(int i = 0; i < lod; ++i) {
                     for(int j = 0; j < lod; ++j) {
-                        WallVertices->push_back(osg::Vec3d(i * sizeX, totalSizeZ, j * sizeZ));
-                        WallVertices->push_back(osg::Vec3d(i * sizeX + sizeX, totalSizeZ, j * sizeZ));
-                        WallVertices->push_back(osg::Vec3d(i * sizeX + sizeX, totalSizeZ, j * sizeZ + sizeZ));
-                        WallVertices->push_back(osg::Vec3d(i * sizeX, totalSizeZ, j * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX, totalSizeY, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX + sizeX, totalSizeY, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX + sizeX, totalSizeY, j * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(i * sizeX, totalSizeY, j * sizeZ + sizeZ));
                     }
                 }
 
@@ -271,7 +271,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
 
                 WallGeometry->addPrimitiveSet(WallBase);
 
-                auto translate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(getFieldCenterX(x), getFieldCenterY(y), 0));
+                auto translate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(getFieldCenterX(x) - getFieldSizeX() / 2, getFieldCenterY(y) - getFieldSizeY() / 2, 0));
 
                 translate->addChild(WallGeode);
 
