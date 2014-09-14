@@ -16,7 +16,7 @@ public:
         FIELD_NPC
     };
 
-    Board(std::vector<std::string>& def, double sizeX, double sizeY);
+    Board(std::vector<std::string> &def, double sizeX, double sizeY, std::string dbPath);
 
     double getSizeX() const;
     double getSizeY() const;
@@ -42,6 +42,7 @@ public:
 private:
     double m_sizeX;
     double m_sizeY;
+    std::string m_dbPath;
 
     std::vector<std::vector<FieldType>> m_fieldMap;
 };
