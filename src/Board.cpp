@@ -4,6 +4,7 @@
 #include <cassert>
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
+#include <osg/Fog>
 
 Board::Board(std::vector<std::string>& def, double sizeX, double sizeY)
     : m_sizeX(sizeX)

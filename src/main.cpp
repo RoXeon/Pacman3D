@@ -13,6 +13,7 @@
 #include <osg/Geode>
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
+#include <osg/Fog>
 #include <osgDB/ReadFile>
 #include <osgGA/KeySwitchMatrixManipulator>
 #include <osgGA/OrbitManipulator>
@@ -49,6 +50,16 @@ int main(int argc, char** argv)
     // Root group
     auto root = make_ref<osg::Group>();
     root->addChild(init_rotate);
+
+    // Setup fog
+    osg::ref_ptr<osg::Fog> fog = new osg::Fog;
+    fog->setMode( osg::Fog::EXP );
+    fog->setStart( 0.0f );
+    fog->setEnd(board.getFieldSizeX() * 20);
+    fog->setDensity(0.03);
+    fog->setColor( osg::Vec4(0.5, 0.5, 0.5, 1.0) );
+
+    root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
 
     // Print node graph
     InfoVisitor info;
