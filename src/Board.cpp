@@ -280,12 +280,62 @@ osg::ref_ptr<osg::Node> Board::draw() const
         }
     }
 
-    auto floor = make_ref<osg::ShapeDrawable>();
-    floor->setShape( new osg::Box( osg::Vec3(getSizeX() / 2, getSizeY() / 2, 0.0f) - normalize, getSizeX(), getSizeY(), 0.5f) );
-    auto floor_geode = make_ref<osg::Geode>();
-    floor_geode->addDrawable(floor);
+    osg::Geode* FloorGeode = new osg::Geode();
+    osg::Geometry* FloorGeometry = new osg::Geometry();
 
-    boardObj->addChild(floor_geode);
+    FloorGeode->addDrawable(FloorGeometry);
+    //specify vertices
+    osg::Vec3dArray* FloorVertices = new osg::Vec3dArray;
+
+    uint32_t FloorLOD = 1000;
+    double totalSizeX = getSizeX();
+    double totalSizeY = getSizeY();
+
+    double sizeX = totalSizeX / FloorLOD;
+    double sizeY = totalSizeY / FloorLOD;
+
+    for(int i = 0; i < FloorLOD; ++i) {
+        for(int j = 0; j < FloorLOD; ++j) {
+            FloorVertices->push_back(osg::Vec3d(i * sizeX, j * sizeY, 0));
+            FloorVertices->push_back(osg::Vec3d(i * sizeX + sizeX, j * sizeY, 0));
+            FloorVertices->push_back(osg::Vec3d(i * sizeX + sizeX, j * sizeY + sizeY, 0));
+            FloorVertices->push_back(osg::Vec3d(i * sizeX, j * sizeY + sizeY, 0));
+        }
+    }
+
+    FloorGeometry->setVertexArray( FloorVertices );
+
+    //specify the kind of geometry we want to draw here
+    osg::DrawElementsUInt* FloorBase = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
+    for(int i = 0; i < FloorLOD * FloorLOD * 4; ++i)
+        FloorBase->push_back(i);
+
+    FloorGeometry->addPrimitiveSet(FloorBase);
+
+    osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
+
+    double tsizeX = 1.0 / FloorLOD;
+    double tsizeY = 1.0 / FloorLOD;
+
+
+    for(int i = 0; i < FloorLOD; ++i) {
+        for(int j = 0; j < FloorLOD; ++j) {
+            texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY));
+            texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY));
+            texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY + tsizeY));
+            texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY + tsizeY));
+        }
+    }
+
+    FloorGeometry->setTexCoordArray( 0, texcoords.get() );
+
+    osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
+    osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/floor.bmp" );
+    texture->setImage( image.get() );
+
+    FloorGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
+
+    boardObj->addChild(FloorGeode);
 
     return boardObj;
 }

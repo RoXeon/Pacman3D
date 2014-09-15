@@ -251,17 +251,17 @@ int main(int argc, char** argv)
     lightSource->setReferenceFrame(osg::LightSource::ABSOLUTE_RF);
     auto light = lightSource->getLight();
     light->setPosition(osg::Vec4{0, 0, 0, 1});
-    //    light->setDirection(osg::Vec3{0, 1, 0});
+    light->setDirection(osg::Vec3{0, 1, 0});
 
-    //    light->setLightNum(2);
+    light->setLightNum(2);
     light->setSpotExponent(2);
     light->setSpotCutoff(osg::DegreesToRadians(25.));
     light->setDiffuse(osg::Vec4(1, 1, 1, 1));
     light->setAmbient(osg::Vec4(0.2, 0.2, 0.2, 1));
     light->setSpecular(osg::Vec4(1, 1, 1, 1));
-    ////    light->setDirection(osg::Vec3(0, -1, 0));
-    ////    light->setAmbient(osg::Vec4(0, 0, 0, 1));
-    //    light->setPosition(osg::Vec4(0, 1, 1, 1));
+    light->setDirection(osg::Vec3(0, -1, 0));
+    light->setAmbient(osg::Vec4(0, 0, 0, 1));
+    light->setPosition(osg::Vec4(0, 1, 1, 1));
 
     root->addChild(lightSource);
 
@@ -270,8 +270,8 @@ int main(int argc, char** argv)
     loadShaderSource(fragmentObject, dbPath + "/shader.frag");
     auto vertexObject = make_ref<osg::Shader>(osg::Shader::VERTEX);
     loadShaderSource(vertexObject, dbPath + "/shader.vert");
-    program->addShader(vertexObject);
-    program->addShader(fragmentObject);
+    //program->addShader(vertexObject);
+    //program->addShader(fragmentObject);
     root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
 
     for(osgViewer::GraphicsWindow *window: windows)
