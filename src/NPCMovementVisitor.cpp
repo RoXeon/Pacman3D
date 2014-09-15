@@ -78,7 +78,18 @@ void NPCMovementVisitor::apply(osg::Node& node)
 
                 npc.getPathCallback()->setAnimationPath(path);
             } else {
-                npc.changeDirection();
+                int16_t attempts = 6;
+                uint32_t cx, cy;
+                bool isCorrectDirection = false;
+
+                do {
+                    std::tie(cx, cy) = npc.getCurrentPosition();
+                    auto NewDirection = npc.changeDirection();
+
+                    auto nx = cx + NewDirection->modX();
+                    auto ny = cx + NewDirection->modY();
+                    isCorrectDirection = npc.getBoard()->getField(nx, ny) == Board::FIELD_EMPTY;
+                } while(attempts-- && !isCorrectDirection);
             }
 
         }

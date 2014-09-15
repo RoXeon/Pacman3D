@@ -423,7 +423,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
     CeilTranslate->addChild(CeilGeode);
 
     boardObj->addChild(FloorGeode);
-    boardObj->addChild(CeilTranslate);
+    //boardObj->addChild(CeilTranslate);
 
     return boardObj;
 }

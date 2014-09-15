@@ -25,6 +25,27 @@ NPC::Direction* NPC::changeDirection()
     static std::mt19937 gen(rd());
 
     std::vector<NPC::Direction*> directions = { &DirectionUp, &DirectionDown, &DirectionLeft, &DirectionRight };
+
+    uint32_t pcX, pcY, npcX, npcY;
+    std::tie(pcX, pcY) = m_board->getPlayerPosition();
+    std::tie(npcX, npcY) = getCurrentPosition();
+
+    if(pcX < npcX) {
+        directions.push_back(&DirectionLeft);
+        if(npcX - pcX > m_board->getFieldCountX() / 2) directions.push_back(&DirectionLeft);
+    } else {
+        directions.push_back(&DirectionRight);
+        if(pcX - npcX > m_board->getFieldCountX() / 2) directions.push_back(&DirectionRight);
+    }
+
+    if(pcY < npcY) {
+        directions.push_back(&DirectionUp);
+        if(npcY - pcY > m_board->getFieldCountY() / 2) directions.push_back(&DirectionUp);
+    } else {
+        directions.push_back(&DirectionDown);
+        if(pcY - npcY > m_board->getFieldCountY() / 2) directions.push_back(&DirectionDown);
+    }
+
     std::shuffle(directions.begin(), directions.end(), gen);
 
     return (m_direction = directions[0]);

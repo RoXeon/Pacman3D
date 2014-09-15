@@ -117,26 +117,27 @@ int main(int argc, char** argv)
     viewer.getCamera()->setClearColor(osg::Vec4{0, 0, 0, 0});
 
     viewer.getCamera()->getView()->setLightingMode(osg::View::HEADLIGHT);
-    auto defaultLight = viewer.getCamera()->getView()->getLight();
-    defaultLight->setDiffuse(osg::Vec4(0, 0, 0, 1));
-    defaultLight->setAmbient(osg::Vec4(0, 0, 0, 1));
-    defaultLight->setSpecular(osg::Vec4(0, 0, 0, 1));
+//    auto defaultLight = viewer.getCamera()->getView()->getLight();
+//    defaultLight->setDiffuse(osg::Vec4(0, 0, 0, 1));
+//    defaultLight->setAmbient(osg::Vec4(0, 0, 0, 1));
+//    defaultLight->setSpecular(osg::Vec4(0, 0, 0, 1));
 
-    auto lightSource = make_ref<osg::LightSource>();
-    lightSource->setReferenceFrame(osg::LightSource::ABSOLUTE_RF);
-    auto light = lightSource->getLight();
-    light->setPosition(osg::Vec4{0, 0, -1, 1});
-    light->setDirection(osg::Vec3{0, 0, -1});
-    light->setSpotExponent(0.000005);
-    light->setSpotCutoff(8);
-    light->setDiffuse(osg::Vec4(1, 1, 1, 1));
-    light->setAmbient(osg::Vec4(0.6, 0.6, 0.6, 1));
-    light->setSpecular(osg::Vec4(1, 1, 1, 1));
-//    light->setQuadraticAttenuation(0.001);
-    light->setLinearAttenuation(0.05);
-    light->setConstantAttenuation(0.01);
-
-    root->addChild(lightSource);
+//    auto lightSource = make_ref<osg::LightSource>();
+//    lightSource->setReferenceFrame(osg::LightSource::ABSOLUTE_RF);
+//    auto light = lightSource->getLight();
+//    light->setPosition(osg::Vec4{0, 0, -1, 1});
+//    light->setDirection(osg::Vec3{0, 0, -1});
+//    light->setSpotExponent(0.000005);
+//    light->setSpotCutoff(8);
+//    light->setDiffuse(osg::Vec4(1, 1, 1, 1));
+//    light->setAmbient(osg::Vec4(0.6, 0.6, 0.6, 1));
+//    light->setSpecular(osg::Vec4(1, 1, 1, 1));
+////    light->setQuadraticAttenuation(0.001);
+//    light->setLinearAttenuation(0.05);
+//    light->setConstantAttenuation(0.01);
+//
+//    root->addChild(lightSource);
+    root->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 
 
     // Shaders
@@ -156,6 +157,8 @@ int main(int argc, char** argv)
     // Optimize
     osgUtil::Optimizer optimzer;
     optimzer.optimize(root);
+
+    viewer.setUpViewOnSingleScreen(0);
 
     return viewer.run();
 }
