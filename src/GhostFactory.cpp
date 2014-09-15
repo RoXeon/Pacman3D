@@ -24,7 +24,7 @@ osg::ref_ptr<osg::Node> GhostFactory::drawGhost(Board& board, osg::Node* ghostMo
     uint32_t fx, fy;
     std::tie(fx, fy) = emptyFields[0];
 
-    auto position = osg::Vec3d(board.getFieldCenterX(fx), board.getFieldCenterY(fy), radius * 1.5);
+    auto position = osg::Vec3d(board.getFieldCenterX(fx), board.getFieldCenterY(fy), radius);
 
     auto ghostMain = make_ref<osg::Group>();
     auto ghostRootPos = make_ref<osg::MatrixTransform>(osg::Matrix::translate(position));

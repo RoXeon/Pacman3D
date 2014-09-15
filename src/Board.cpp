@@ -10,6 +10,67 @@
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
 
+
+osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, uint16_t FragmentCount, uint32_t LOD, std::string TextureFile) const
+{
+    osg::Geode* CeilGeode = new osg::Geode();
+    osg::Geometry* CeilGeometry = new osg::Geometry();
+
+    CeilGeode->addDrawable(CeilGeometry);
+    //specify vertices
+    osg::Vec3dArray* CeilVertices = new osg::Vec3dArray;
+    osg::DrawElementsUInt* CeilBase = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
+    osg::ref_ptr<osg::Vec2Array> CeilTexcoords = new osg::Vec2Array;
+
+    double FragmentSizeX = RootSizeX / FragmentCount;
+    double FragmentSizeY = RootSizeY / FragmentCount;
+
+    double sTexSizeX = 1.0 / LOD;
+    double sTexSizeY = 1.0 / LOD;
+
+    osg::ref_ptr<osg::Texture2D> CeilTexture = new osg::Texture2D;
+    osg::ref_ptr<osg::Image> CeilImage = osgDB::readImageFile( m_dbPath + "/" + TextureFile );
+    CeilTexture->setImage( CeilImage.get() );
+
+    for(int fi = 0; fi < FragmentCount; ++fi) {
+        for(int fj = 0; fj < FragmentCount; ++fj) {
+
+            double sizeX = FragmentSizeX / LOD;
+            double sizeY = FragmentSizeY / LOD;
+
+            for(int i = 0; i < LOD; ++i) {
+                for(int j = 0; j < LOD; ++j) {
+                    CeilVertices->push_back(osg::Vec3d(fi * FragmentSizeX + i * sizeX, fj * FragmentSizeY + j * sizeY, 0));
+                    CeilVertices->push_back(osg::Vec3d(fi * FragmentSizeX + i * sizeX + sizeX, fj * FragmentSizeY + j * sizeY, 0));
+                    CeilVertices->push_back(osg::Vec3d(fi * FragmentSizeX + i * sizeX + sizeX, fj * FragmentSizeY + j * sizeY + sizeY, 0));
+                    CeilVertices->push_back(osg::Vec3d(fi * FragmentSizeX + i * sizeX, fj * FragmentSizeY + j * sizeY + sizeY, 0));
+                }
+            }
+
+            for(int i = 0; i < LOD; ++i) {
+                for(int j = 0; j < LOD; ++j) {
+                    CeilTexcoords->push_back(osg::Vec2d(i * sTexSizeX, j * sTexSizeY));
+                    CeilTexcoords->push_back(osg::Vec2d(i * sTexSizeX + sTexSizeX, j * sTexSizeY));
+                    CeilTexcoords->push_back(osg::Vec2d(i * sTexSizeX + sTexSizeX, j * sTexSizeY + sTexSizeY));
+                    CeilTexcoords->push_back(osg::Vec2d(i * sTexSizeX, j * sTexSizeY + sTexSizeY));
+                }
+            }
+        }
+    }
+
+    uint64_t ElemCount = LOD * LOD * 4 * FragmentCount * FragmentCount;
+    for(uint64_t i = 0; i < ElemCount; ++i)
+        CeilBase->push_back(i);
+
+    CeilGeometry->setVertexArray( CeilVertices );
+    CeilGeometry->addPrimitiveSet(CeilBase);
+    CeilGeometry->setTexCoordArray( 0, CeilTexcoords.get() );
+    CeilGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, CeilTexture.get() );
+
+    return osg::ref_ptr<osg::Node>(CeilGeode);
+}
+
+
 Board::Board(std::vector<std::string> &def, double sizeX, double sizeY, std::string dbPath)
     : m_sizeX(sizeX)
     , m_sizeY(sizeY)
@@ -136,95 +197,6 @@ osg::ref_ptr<osg::Node> Board::draw() const
     for(auto y = 0; y < getFieldCountY(); ++y) { // y
         for(auto x = 0; x < getFieldCountX(); ++x) { // x
             if(m_fieldMap[y][x] == FieldType::FIELD_WALL) {
-                auto center = osg::Vec3d(getFieldCenterX(x), getFieldCenterY(y), blockSizeZ / 2) - normalize;
-//                auto dr = make_ref<osg::ShapeDrawable>();
-//                dr->setShape(new osg::Box(center, getFieldSizeX() + overlaySize, getFieldSizeY() + overlaySize, blockSizeZ));
-//                dr->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
-//
-//                auto XMod = osg::Vec3d{getFieldSizeX() / 2 + overlaySize, 0, 0};
-//                auto YMod = osg::Vec3d{0, getFieldSizeY() / 2 + overlaySize, 0};
-//                auto ZMod = osg::Vec3d{0, 0, blockSizeZ / 2};
-//
-//                osg::Geode* WallGeode = new osg::Geode();
-//                osg::Geometry* WallGeometry = new osg::Geometry();
-//
-//                WallGeode->addDrawable(WallGeometry);
-//                //specify vertices
-//                osg::Vec3dArray* WallVertices = new osg::Vec3dArray;
-//
-//
-//
-//                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center - YMod)[1], (center - ZMod)[2]) ); // front left
-//                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center - YMod)[1], (center - ZMod)[2]) ); // front right
-//                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center + YMod)[1], (center - ZMod)[2]) ); // back right
-//                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center + YMod)[1], (center - ZMod)[2]) ); // back left
-//                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center - YMod)[1], (center + ZMod)[2]) ); // front left
-//                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center - YMod)[1], (center + ZMod)[2]) ); // front right
-//                WallVertices->push_back( osg::Vec3d((center + XMod)[0], (center + YMod)[1], (center + ZMod)[2]) ); // back right
-//                WallVertices->push_back( osg::Vec3d((center - XMod)[0], (center + YMod)[1], (center + ZMod)[2]) ); // back left
-//                WallGeometry->setVertexArray( WallVertices );
-//
-//                //specify the kind of geometry we want to draw here
-//                osg::DrawElementsUInt* WallBase = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-//                //specify the order we want to draw the base of our geometry
-//                WallBase->push_back(0);
-//                WallBase->push_back(1);
-//                WallBase->push_back(2);
-//                WallBase->push_back(3);
-//                                                        // 0 3        4 7
-//                WallBase->push_back(4);                 // 1 2        5 6
-//                WallBase->push_back(5);
-//                WallBase->push_back(6);
-//                WallBase->push_back(7);
-//
-//                WallBase->push_back(0);
-//                WallBase->push_back(1);
-//                WallBase->push_back(5);
-//                WallBase->push_back(4);
-//
-//                WallBase->push_back(2);
-//                WallBase->push_back(3);
-//                WallBase->push_back(7);
-//                WallBase->push_back(6);
-////
-////
-//                WallBase->push_back(0);
-//                WallBase->push_back(3);
-//                WallBase->push_back(7);
-//                WallBase->push_back(4);
-//
-//
-//                WallBase->push_back(1);
-//                WallBase->push_back(2);
-//                WallBase->push_back(6);
-//                WallBase->push_back(5);
-//                WallGeometry->addPrimitiveSet(WallBase);
-//
-//
-//                osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
-//
-//                texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
-//                texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
-//                texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
-//                texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
-//
-//
-//                texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
-//                texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
-//                texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
-//                texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
-//                WallGeometry->setTexCoordArray( 0, texcoords.get() );
-////
-////
-//                osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-//                osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/wall3_small.bmp" );
-//                texture->setImage( image.get() );
-//
-//                auto drgd = make_ref<osg::Geode>();
-//
-//                drgd->addDrawable(dr);
-//                WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
-
                 osg::Geode* WallGeode = new osg::Geode();
                 osg::Geometry* WallGeometry = new osg::Geometry();
 
@@ -333,11 +305,9 @@ osg::ref_ptr<osg::Node> Board::draw() const
                     }
 
                     WallGeometry->setTexCoordArray( 0, texcoords.get() );
-
                     WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
 
                     auto translate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(getFieldCenterX(x) - getFieldSizeX() / 2, getFieldCenterY(y) - getFieldSizeY() / 2, z * blockSizeZ));
-
                     translate->addChild(WallGeode);
 
                     boardObj->addChild(translate);
@@ -347,104 +317,8 @@ osg::ref_ptr<osg::Node> Board::draw() const
         }
     }
 
-    osg::Geode* FloorGeode = new osg::Geode();
-    osg::Geometry* FloorGeometry = new osg::Geometry();
-
-    FloorGeode->addDrawable(FloorGeometry);
-    //specify vertices
-    osg::Vec3dArray* FloorVertices = new osg::Vec3dArray;
-
-    uint32_t FloorLOD = 1000;
-    double totalSizeX = getSizeX();
-    double totalSizeY = getSizeY();
-
-    double sizeX = totalSizeX / FloorLOD;
-    double sizeY = totalSizeY / FloorLOD;
-
-    for(int i = 0; i < FloorLOD; ++i) {
-        for(int j = 0; j < FloorLOD; ++j) {
-            FloorVertices->push_back(osg::Vec3d(i * sizeX, j * sizeY, 0));
-            FloorVertices->push_back(osg::Vec3d(i * sizeX + sizeX, j * sizeY, 0));
-            FloorVertices->push_back(osg::Vec3d(i * sizeX + sizeX, j * sizeY + sizeY, 0));
-            FloorVertices->push_back(osg::Vec3d(i * sizeX, j * sizeY + sizeY, 0));
-        }
-    }
-
-    FloorGeometry->setVertexArray( FloorVertices );
-
-    //specify the kind of geometry we want to draw here
-    osg::DrawElementsUInt* FloorBase = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-    for(int i = 0; i < FloorLOD * FloorLOD * 4; ++i)
-        FloorBase->push_back(i);
-
-    FloorGeometry->addPrimitiveSet(FloorBase);
-
-    osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
-
-    double tsizeX = 1.0;
-    double tsizeY = 1.0;
-
-    for(int i = 0; i < FloorLOD; ++i) {
-        for(int j = 0; j < FloorLOD; ++j) {
-            texcoords->push_back(osg::Vec2d(0, 0));
-            texcoords->push_back(osg::Vec2d(tsizeX, 0));
-            texcoords->push_back(osg::Vec2d(tsizeX, tsizeY));
-            texcoords->push_back(osg::Vec2d(0, tsizeY));
-        }
-    }
-
-    FloorGeometry->setTexCoordArray( 0, texcoords.get() );
-
-    osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-    osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/floor.bmp" );
-    texture->setImage( image.get() );
-
-    FloorGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
-
-    osg::Geode* CeilGeode = new osg::Geode();
-    osg::Geometry* CeilGeometry = new osg::Geometry();
-
-    CeilGeode->addDrawable(CeilGeometry);
-    //specify vertices
-    osg::Vec3dArray* CeilVertices = new osg::Vec3dArray;
-
-    for(int i = 0; i < FloorLOD; ++i) {
-        for(int j = 0; j < FloorLOD; ++j) {
-            CeilVertices->push_back(osg::Vec3d(i * sizeX, j * sizeY, 0));
-            CeilVertices->push_back(osg::Vec3d(i * sizeX + sizeX, j * sizeY, 0));
-            CeilVertices->push_back(osg::Vec3d(i * sizeX + sizeX, j * sizeY + sizeY, 0));
-            CeilVertices->push_back(osg::Vec3d(i * sizeX, j * sizeY + sizeY, 0));
-        }
-    }
-
-    CeilGeometry->setVertexArray( CeilVertices );
-
-    //specify the kind of geometry we want to draw here
-    osg::DrawElementsUInt* CeilBase = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-    for(int i = 0; i < FloorLOD * FloorLOD * 4; ++i)
-        CeilBase->push_back(i);
-
-    CeilGeometry->addPrimitiveSet(CeilBase);
-
-    osg::ref_ptr<osg::Vec2Array> CeilTexcoords = new osg::Vec2Array;
-
-    for(int i = 0; i < FloorLOD; ++i) {
-        for(int j = 0; j < FloorLOD; ++j) {
-            CeilTexcoords->push_back(osg::Vec2d(0, 0));
-            CeilTexcoords->push_back(osg::Vec2d(tsizeX, 0));
-            CeilTexcoords->push_back(osg::Vec2d(tsizeX, tsizeY));
-            CeilTexcoords->push_back(osg::Vec2d(0, tsizeY));
-        }
-    }
-
-    CeilGeometry->setTexCoordArray( 0, texcoords.get() );
-
-//    osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-//    osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/floor.bmp" );
-//    texture->setImage( image.get() );
-
-    CeilGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
-
+    auto FloorGeode = DrawSquare(getSizeX(), getSizeY(), 8, 50, "floor.bmp");
+    auto CeilGeode = DrawSquare(getSizeX(), getSizeY(), 8, 50, "ceil.bmp");
     auto CeilTranslate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(0, 0, blockCountZ * blockSizeZ));
     CeilTranslate->addChild(CeilGeode);
 

@@ -43,6 +43,7 @@ public:
     std::vector<std::tuple<uint32_t, uint32_t>> getEmptyFields() const;
 
     osg::ref_ptr<osg::Node> draw() const;
+    osg::ref_ptr<osg::Node> DrawSquare(double RootSizeX, double RootSizeY, uint16_t FragmentCount, uint32_t LOD, std::string TextureFile) const;
 
 private:
     double m_sizeX;
