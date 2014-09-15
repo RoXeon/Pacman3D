@@ -17,7 +17,7 @@ namespace {
     double boardSizeX = 500.0;
     double boardSizeY = 500.0;
 
-    constexpr bool FogEnabled               = false;
+    constexpr bool FogEnabled               = true;
     constexpr float BoardObjectsShininess   = 0.4;
     constexpr uint32_t BoardWallLOD         = 1;
     constexpr uint32_t BoardFloorLOD        = 1;
