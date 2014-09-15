@@ -27,7 +27,7 @@ bool FPSManipulator::handleKeyDown(const osgGA::GUIEventAdapter &ea, osgGA::GUIA
 {
     _sprint = ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_LEFT_SHIFT;
 
-    switch(ea.getKey())
+    switch(ea.getUnmodifiedKey())
     {
         case osgGA::GUIEventAdapter::KEY_W: _forward =  1; return true;
         case osgGA::GUIEventAdapter::KEY_S: _forward = -1; return true;
@@ -45,7 +45,7 @@ bool FPSManipulator::handleKeyDown(const osgGA::GUIEventAdapter &ea, osgGA::GUIA
 
 bool FPSManipulator::handleKeyUp(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us)
 {
-    switch(ea.getKey())
+    switch(ea.getUnmodifiedKey())
     {
         case osgGA::GUIEventAdapter::KEY_W:
         case osgGA::GUIEventAdapter::KEY_S:
