@@ -90,8 +90,6 @@ int main(int argc, char** argv)
 
 
     // Print node graph
-    InfoVisitor info;
-    root->accept(info);
 
     // Start viewer
     osgViewer::Viewer viewer;

@@ -37,4 +37,5 @@ private:
 
     int _forward = 0;
     int _right = 0;
+    bool _sprint = false;
 };

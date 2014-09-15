@@ -7,6 +7,7 @@
 
 namespace {
 constexpr double FORWARD_STEP_DISTANCE = 10;
+constexpr double FORWARD_SPRINT_DISTANCE = 15;
 constexpr double RIGHT_STEP_DISTANCE = 5;
 constexpr double STEP_TIME = .75;
 constexpr double BOBBING_HEIGHT = 0.3;
@@ -24,6 +25,8 @@ FPSManipulator::FPSManipulator(Board &b)
 
 bool FPSManipulator::handleKeyDown(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us)
 {
+    _sprint = ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_LEFT_SHIFT;
+
     switch(ea.getKey())
     {
         case osgGA::GUIEventAdapter::KEY_W: _forward =  1; return true;
@@ -84,7 +87,7 @@ bool FPSManipulator::handleFrame(const osgGA::GUIEventAdapter &ea, osgGA::GUIAct
 void FPSManipulator::applyAnimationStep(const double currentProgress, const double previousProgress)
 {
     const auto ad = osg::static_pointer_cast<FPSAnimationData>(_animationData);
-    const auto forwardSpeed = ad->_forward * FORWARD_STEP_DISTANCE;
+    const auto forwardSpeed = ad->_forward * (_sprint ? FORWARD_SPRINT_DISTANCE : FORWARD_STEP_DISTANCE);
     const auto rightSpeed = ad->_right * RIGHT_STEP_DISTANCE;
 
     const auto normalize = ad->_forward && ad->_right;
