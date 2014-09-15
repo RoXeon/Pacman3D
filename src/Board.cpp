@@ -120,8 +120,10 @@ osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, ui
     material->setShininess(osg::Material::FRONT_AND_BACK, 0.2);
     material->setAlpha(osg::Material::FRONT_AND_BACK, 0.2);
 
+    const int32_t TEXTURE_UNIT = 1;
+
     //CeilGeode->getOrCreateStateSet()->setAttributeAndModes(material);
-    CeilGeode->getOrCreateStateSet()->setTextureAttributeAndModes(1, CeilTexture.get() );
+    CeilGeode->getOrCreateStateSet()->setTextureAttributeAndModes(TEXTURE_UNIT, CeilTexture.get() );
 
     osg::TexEnv* blendTexEnv = new osg::TexEnv;
     blendTexEnv->setMode(osg::TexEnv::BLEND);
@@ -134,7 +136,6 @@ osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, ui
     osg::ref_ptr<osg::ShadeModel> shadeModel = new osg::ShadeModel(osg::ShadeModel::SMOOTH);
     CeilGeode->getOrCreateStateSet()->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
 
-
     auto program = make_ref<osg::Program>();
     auto fragmentObject = make_ref<osg::Shader>(osg::Shader::FRAGMENT);
     loadShaderSource(fragmentObject, m_dbPath + "/shader.frag");
@@ -143,6 +144,8 @@ osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, ui
     program->addShader(vertexObject);
     program->addShader(fragmentObject);
     CeilGeode->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
+
+    CeilGeode->getOrCreateStateSet()->addUniform(new osg::Uniform("samplerName", osg::Uniform::SAMPLER_2D));
 
     return osg::ref_ptr<osg::Node>(CeilGeode);
 }

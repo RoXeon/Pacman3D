@@ -1,7 +1,6 @@
 varying vec4 diffuse,ambientGlobal, ambient, ecPos;
 varying vec3 normal,halfVector;
-
-
+uniform sampler2D samplerName;
 
 void main()
 {
@@ -41,8 +40,8 @@ void main()
         }
     }
 
-    color *= gl_Color;
-    color *= texture2D(1, gl_TexCoord[0].st);
+    //color *= gl_Color;
+    color *= texture2D(samplerName, gl_TexCoord[1].st);
     //finalColor += specular;
 
     gl_FragColor = color;
