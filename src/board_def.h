@@ -6,6 +6,9 @@
 double boardSizeX = 500.0;
 double boardSizeY = 500.0;
 
+bool    FogEnabled              = false;
+float   BoardObjectsShininess   = 0.4;
+
 // y (y field: 0, position: boardSizeY)
 // |
 // |

@@ -1,6 +1,8 @@
 // Light
 varying vec4 diffuse,ambientGlobal, ambient, ecPos;
 varying vec3 normal,halfVector;
+uniform float Shininess;
+uniform bool FogEnabled;
 
 // Textures
 uniform sampler2D samplerName;
@@ -48,14 +50,25 @@ void main()
 
             halfV = normalize(halfVector);
             NdotHV = max(dot(n,halfV),0.0);
-            color += att * gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(NdotHV, 0.5);
+            color += att * gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(NdotHV, Shininess);
         }
     }
 
     // Final color
     vec3 lVec = normalize(lightVec);
     vec3 vVec = normalize(viewVec);
-    vec4 finalColor = color * texture2D(samplerName, gl_TexCoord[1].st) * atten;
 
-    gl_FragColor = mix(gl_Fog.color, finalColor, fogFactor );
+    float LocalAtten, LocalFogFactor;
+
+    if(!FogEnabled) {
+        LocalAtten = 1.0;
+        LocalFogFactor = 1.0;
+    } else {
+        LocalAtten = atten;
+        LocalFogFactor = fogFactor;
+    }
+
+    vec4 finalColor = color * texture2D(samplerName, gl_TexCoord[1].st) * LocalAtten;
+
+    gl_FragColor = mix(gl_Fog.color, finalColor, LocalFogFactor);
 }

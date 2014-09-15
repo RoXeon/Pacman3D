@@ -77,14 +77,17 @@ int main(int argc, char** argv)
     root->addChild(init_rotate);
 
     // Setup fog
-    osg::ref_ptr<osg::Fog> fog = new osg::Fog;
-    fog->setMode( osg::Fog::EXP2 );
-    fog->setStart( 0.0f );
-    fog->setEnd(board.getFieldSizeX() * 20);
-    fog->setDensity(0.03);
-    fog->setColor( osg::Vec4(0.2, 0.3, 0.4, 1.0) );
+    if(FogEnabled) {
+        osg::ref_ptr<osg::Fog> fog = new osg::Fog;
+        fog->setMode( osg::Fog::EXP2 );
+        fog->setStart( 0.0f );
+        fog->setEnd(board.getFieldSizeX() * 20);
+        fog->setDensity(0.03);
+        fog->setColor( osg::Vec4(0.2, 0.3, 0.4, 1.0) );
 
-    root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
+        root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
+    }
+
 
     // Print node graph
     InfoVisitor info;
@@ -146,7 +149,8 @@ int main(int argc, char** argv)
     root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
 
     root->getOrCreateStateSet()->addUniform(new osg::Uniform("samplerName", TEXTURE_UNIT));
-
+    root->getOrCreateStateSet()->addUniform(new osg::Uniform("Shininess", BoardObjectsShininess));
+    root->getOrCreateStateSet()->addUniform(new osg::Uniform("FogEnabled", FogEnabled));
 
     for(osgViewer::GraphicsWindow *window: windows)
     {

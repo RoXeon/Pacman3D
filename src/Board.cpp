@@ -390,7 +390,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
                     material->setDataVariance(osg::Material::STATIC);
                     material->setShininess(osg::Material::FRONT_AND_BACK, 1.0);
 
-                    WallGeode->getOrCreateStateSet()->setAttributeAndModes(material);
+                    //WallGeode->getOrCreateStateSet()->setAttributeAndModes(material);
 
                     auto translate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(getFieldCenterX(x) - getFieldSizeX() / 2, getFieldCenterY(y) - getFieldSizeY() / 2, z * blockSizeZ));
                     translate->addChild(WallGeode);
