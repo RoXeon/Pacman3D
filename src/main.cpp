@@ -22,25 +22,25 @@
 #include <osgGA/OrbitManipulator>
 #include <osg/Texture2D>
 
-//bool loadShaderSource(osg::Shader* obj, const std::string& fileName )
-//{
-//    std::string fqFileName = osgDB::findDataFile(fileName);
-//    if( fqFileName.length() == 0 )
-//    {
-//        std::cout << "File \"" << fileName << "\" not found." << std::endl;
-//        return false;
-//    }
-//    bool success = obj->loadShaderSourceFromFile( fqFileName.c_str());
-//    if ( !success  )
-//    {
-//        std::cout << "Couldn't load file: " << fileName << std::endl;
-//        return false;
-//    }
-//    else
-//    {
-//        return true;
-//    }
-//}
+bool loadShaderSource(osg::Shader* obj, const std::string& fileName )
+{
+    std::string fqFileName = osgDB::findDataFile(fileName);
+    if( fqFileName.length() == 0 )
+    {
+        std::cout << "File \"" << fileName << "\" not found." << std::endl;
+        return false;
+    }
+    bool success = obj->loadShaderSourceFromFile( fqFileName.c_str());
+    if ( !success  )
+    {
+        std::cout << "Couldn't load file: " << fileName << std::endl;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
 
 
 int main(int argc, char** argv)
@@ -77,14 +77,17 @@ int main(int argc, char** argv)
     root->addChild(init_rotate);
 
     // Setup fog
-    osg::ref_ptr<osg::Fog> fog = new osg::Fog;
-    fog->setMode( osg::Fog::EXP2 );
-    fog->setStart( 0.0f );
-    fog->setEnd(board.getFieldSizeX() * 20);
-    fog->setDensity(0.03);
-    fog->setColor( osg::Vec4(0.2, 0.2, 0.2, 1.0) );
+    if(FogEnabled) {
+        osg::ref_ptr<osg::Fog> fog = new osg::Fog;
+        fog->setMode( osg::Fog::EXP2 );
+        fog->setStart( 0.0f );
+        fog->setEnd(board.getFieldSizeX() * 20);
+        fog->setDensity(0.03);
+        fog->setColor( osg::Vec4(0.2, 0.3, 0.4, 1.0) );
 
-    //root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
+        root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
+    }
+
 
     // Print node graph
     InfoVisitor info;
@@ -134,24 +137,29 @@ int main(int argc, char** argv)
 
     root->addChild(lightSource);
 
-//    auto program = make_ref<osg::Program>();
-//    auto fragmentObject = make_ref<osg::Shader>(osg::Shader::FRAGMENT);
-//    loadShaderSource(fragmentObject, dbPath + "/shader.frag");
-//    auto vertexObject = make_ref<osg::Shader>(osg::Shader::VERTEX);
-//    loadShaderSource(vertexObject, dbPath + "/shader.vert");
-//    program->addShader(vertexObject);
-//    program->addShader(fragmentObject);
-//    root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
-//    root->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED);
 
+    // Shaders
+    auto program = make_ref<osg::Program>();
+    auto fragmentObject = make_ref<osg::Shader>(osg::Shader::FRAGMENT);
+    loadShaderSource(fragmentObject, dbPath + "/shader.frag");
+    auto vertexObject = make_ref<osg::Shader>(osg::Shader::VERTEX);
+    loadShaderSource(vertexObject, dbPath + "/shader.vert");
+    program->addShader(vertexObject);
+    program->addShader(fragmentObject);
+    root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
+
+    root->getOrCreateStateSet()->addUniform(new osg::Uniform("samplerName", TEXTURE_UNIT));
+    root->getOrCreateStateSet()->addUniform(new osg::Uniform("Shininess", BoardObjectsShininess));
+    root->getOrCreateStateSet()->addUniform(new osg::Uniform("FogEnabled", FogEnabled));
 
     for(osgViewer::GraphicsWindow *window: windows)
     {
         window->useCursor(false);
     }
 
-    //osgUtil::Optimizer optimzer;
-    //optimzer.optimize(root);
+    // Optimize
+    osgUtil::Optimizer optimzer;
+    optimzer.optimize(root);
 
     return viewer.run();
 }
