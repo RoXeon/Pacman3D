@@ -18,7 +18,7 @@ endmacro()
 
 set(SOURCE_FILES
     src/main.cpp
-    src/InfoVisitor.cpp src/board_utils.cpp src/Board.cpp src/NPC.cpp src/GhostFactory.cpp src/board_def.h src/FPSManipulator.cpp
+    src/InfoVisitor.cpp src/Board.cpp src/NPC.cpp src/GhostFactory.cpp src/board_def.h src/FPSManipulator.cpp
     src/NPCMovementCallback.cpp src/NPCMovementVisitor.cpp
 )
 add_executable(Pacman3D ${SOURCE_FILES})
