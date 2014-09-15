@@ -267,9 +267,9 @@ int main(int argc, char** argv)
 
     auto program = make_ref<osg::Program>();
     auto fragmentObject = make_ref<osg::Shader>(osg::Shader::FRAGMENT);
-    loadShaderSource(fragmentObject, "/home/konrad/Pacman3D/shaders/shader.frag");
+    loadShaderSource(fragmentObject, dbPath + "/shader.frag");
     auto vertexObject = make_ref<osg::Shader>(osg::Shader::VERTEX);
-    loadShaderSource(vertexObject, "/home/konrad/Pacman3D/shaders/shader.vert");
+    loadShaderSource(vertexObject, dbPath + "/shader.vert");
     program->addShader(vertexObject);
     program->addShader(fragmentObject);
     root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
