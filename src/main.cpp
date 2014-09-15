@@ -83,7 +83,7 @@ int main(int argc, char** argv)
         fog->setStart( 0.0f );
         fog->setEnd(board.getFieldSizeX() * 20);
         fog->setDensity(0.03);
-        fog->setColor( osg::Vec4(0.2, 0.3, 0.4, 1.0) );
+        fog->setColor( osg::Vec4(0.3, 0.3, 0.4, 1.0) );
 
         root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
     }
@@ -127,11 +127,14 @@ int main(int argc, char** argv)
     auto light = lightSource->getLight();
     light->setPosition(osg::Vec4{0, 0, -1, 1});
     light->setDirection(osg::Vec3{0, 0, -1});
-    light->setSpotExponent(0.05);
-    light->setSpotCutoff(3.5);
+    light->setSpotExponent(0.000005);
+    light->setSpotCutoff(8);
     light->setDiffuse(osg::Vec4(1, 1, 1, 1));
     light->setAmbient(osg::Vec4(0.6, 0.6, 0.6, 1));
     light->setSpecular(osg::Vec4(1, 1, 1, 1));
+//    light->setQuadraticAttenuation(0.001);
+    light->setLinearAttenuation(0.05);
+    light->setConstantAttenuation(0.01);
 
     root->addChild(lightSource);
 

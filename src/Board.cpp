@@ -1,4 +1,5 @@
 #include "Board.h"
+#include "board_def.h"
 #include "make_ref.h"
 
 #include <cassert>
@@ -231,7 +232,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
                 //specify vertices
                 osg::Vec3dArray* WallVertices = new osg::Vec3dArray;
 
-                uint32_t lod = 15;
+                uint32_t lod = BoardWallLOD;
                 double totalSizeX = getFieldSizeX();
                 double totalSizeY = getFieldSizeY();
                 double totalSizeZ = blockSizeZ;
@@ -241,7 +242,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
                 double sizeZ = totalSizeZ / lod;
 
                 osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-                osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/wall3_small.bmp" );
+                osg::ref_ptr<osg::Image> image = osgDB::readImageFile(m_dbPath + "/" + ActiveTheme[WALL]);
                 texture->setImage( image.get() );
 
                 for(int z = 0; z < blockCountZ; ++z) {
@@ -402,8 +403,8 @@ osg::ref_ptr<osg::Node> Board::draw() const
         }
     }
 
-    auto FloorGeode = DrawSquare(getSizeX(), getSizeY(), 8, 100, "floor.bmp");
-    auto CeilGeode = DrawSquare(getSizeX(), getSizeY(), 8, 100, "ceil.bmp");
+    auto FloorGeode = DrawSquare(getSizeX(), getSizeY(), std::atoi(ActiveTheme[FLOOR_REPEAT].c_str()), BoardFloorLOD, ActiveTheme[FLOOR]);
+    auto CeilGeode = DrawSquare(getSizeX(), getSizeY(), 8, BoardFloorLOD, ActiveTheme[CEIL]);
     auto CeilTranslate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(0, 0, blockCountZ * blockSizeZ));
     CeilTranslate->addChild(CeilGeode);
 

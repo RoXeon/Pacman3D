@@ -14,7 +14,7 @@ attribute vec3 tangent;
 void main()
 {
     // Setup... something
-    gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+    gl_TexCoord[1] = gl_MultiTexCoord1;
     gl_Position = ftransform();
 
 

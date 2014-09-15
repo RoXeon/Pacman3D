@@ -68,7 +68,11 @@ void main()
         LocalFogFactor = fogFactor;
     }
 
-    vec4 finalColor = color * texture2D(samplerName, gl_TexCoord[1].st) * LocalAtten;
+    vec4 TextureColor = texture2D(samplerName, gl_TexCoord[1].st);
+    if(TextureColor.r == 0.0 && TextureColor.g == 0.0 && TextureColor.b == 0.0)
+        TextureColor = vec4(1, 1, 1, 1);
+
+    vec4 finalColor = color * TextureColor * LocalAtten;
 
     gl_FragColor = mix(gl_Fog.color, finalColor, LocalFogFactor);
 }
