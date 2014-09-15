@@ -5,11 +5,16 @@
 #include <osgGA/GUIEventAdapter>
 #include <osgGA/GUIActionAdapter>
 
-constexpr double MAX_STEP_DISTANCE = 20;
-constexpr double STEP_TIME = 1.;
-constexpr double DECELERATION = 5;
-constexpr double ACCELERATION = 1.5;
+namespace {
+constexpr double FORWARD_STEP_DISTANCE = 10;
+constexpr double RIGHT_STEP_DISTANCE = 5;
+constexpr double STEP_TIME = .75;
+constexpr double BOBBING_HEIGHT = 0.3;
+constexpr double COLLISION_FIELD_PADDING = 0.05;
+constexpr double BIDIRECTIONAL_MOVEMENT_NORMALIZATION = 0.7;
 
+template<typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
+}
 
 FPSManipulator::FPSManipulator(Board &b)
     : _board(b)
@@ -21,24 +26,13 @@ bool FPSManipulator::handleKeyDown(const osgGA::GUIEventAdapter &ea, osgGA::GUIA
 {
     switch(ea.getKey())
     {
-        case osgGA::GUIEventAdapter::KEY_W:
-            _forward = 1;
-            runAnimation(ea, us);
-            return true;
-        case osgGA::GUIEventAdapter::KEY_S:
-            _forward = -1;
-            runAnimation(ea, us);
-            return true;
-        case osgGA::GUIEventAdapter::KEY_A:
-            _right = -1;
-            runAnimation(ea, us);
-            return true;
-        case osgGA::GUIEventAdapter::KEY_D:
-            _right = 1;
-            runAnimation(ea, us);
-            return true;
+        case osgGA::GUIEventAdapter::KEY_W: _forward =  1; return true;
+        case osgGA::GUIEventAdapter::KEY_S: _forward = -1; return true;
+        case osgGA::GUIEventAdapter::KEY_A: _right   = -1; return true;
+        case osgGA::GUIEventAdapter::KEY_D: _right   =  1; return true;
         case osgGA::GUIEventAdapter::KEY_Space:
             home(ea, us);
+            _standardHeight = _eye.z();
             _board.setField(_eye.x(), _eye.y(), Board::FIELD_PC);
             return true;
     }
@@ -75,44 +69,44 @@ bool FPSManipulator::performMouseDeltaMovement(const float dx, const float dy)
 
 bool FPSManipulator::handleFrame(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us)
 {
-    if(_right || _forward)
+    if(_right || _forward) {
         runAnimation(ea, us);
+
+        // Possibly change step direction
+        const auto ad = osg::static_pointer_cast<FPSAnimationData>(_animationData);
+        ad->_right = _right;
+        ad->_forward = _forward;
+    }
 
     return osgGA::FirstPersonManipulator::handleFrame(ea, us);
 }
 
 void FPSManipulator::applyAnimationStep(const double currentProgress, const double previousProgress)
 {
-    const auto fraction = (currentProgress - previousProgress);
+    const auto ad = osg::static_pointer_cast<FPSAnimationData>(_animationData);
+    const auto forwardSpeed = ad->_forward * FORWARD_STEP_DISTANCE;
+    const auto rightSpeed = ad->_right * RIGHT_STEP_DISTANCE;
 
-//    _forwardAcceleration += _forward ? fraction * ACCELERATION : fraction * DECELERATION;
-//    _rightAcceleration += _right ? fraction * ACCELERATION : fraction * DECELERATION;
+    const auto normalize = ad->_forward && ad->_right;
+    const auto normalizedForwardSpeed = normalize ? forwardSpeed * BIDIRECTIONAL_MOVEMENT_NORMALIZATION : forwardSpeed;
+    const auto normalizedRightSpeed = normalize ? rightSpeed * BIDIRECTIONAL_MOVEMENT_NORMALIZATION : rightSpeed;
 
-//    _forwardAcceleration = std::max(std::min(MAX_STEP_DISTANCE, _forwardAcceleration), 0);
-//    _rightAcceleration = std::max(std::min(MAX_STEP_DISTANCE, _rightAcceleration), 0);
+    const auto fraction = currentProgress - previousProgress;
+    const auto moveForwardBy = fraction * normalizedForwardSpeed;
+    const auto moveRightBy = fraction * normalizedRightSpeed;
 
-    const auto forwardSpeed = _forward * MAX_STEP_DISTANCE;
-    const auto rightSpeed = _right * MAX_STEP_DISTANCE;
-    const auto totalSpeed = std::abs(forwardSpeed) + std::abs(rightSpeed);
-    if(totalSpeed == 0)
-        return;
+    const auto newEye = newCoords(moveForwardBy, moveRightBy);
+    const auto newHeight = _standardHeight - getBobValue(currentProgress);
 
-    const auto normalizedForwardSpeed = forwardSpeed * std::abs(forwardSpeed) / totalSpeed;
-    const auto normalizedRightSpeed = rightSpeed * std::abs(rightSpeed) / totalSpeed;
+    const auto paddingX = sgn(newEye.x() - _eye.x()) * _board.getFieldSizeX() * COLLISION_FIELD_PADDING;
+    const auto paddingY = sgn(newEye.y() - _eye.y()) * _board.getFieldSizeY() * COLLISION_FIELD_PADDING;
 
-    const auto moveForwardBy = (currentProgress - previousProgress) * normalizedForwardSpeed;
-    const auto moveRightBy = (currentProgress - previousProgress) * normalizedRightSpeed;
-
-    auto newEye = newCoords(moveForwardBy, moveRightBy);
-
-    auto consideredX = newEye.x() + (newEye.x() - _eye.x() > 0 ? +1 : -1) * _board.getFieldSizeX() / 20;
-    auto consideredY = newEye.y() + (newEye.y() - _eye.y() > 0 ? +1 : -1) * _board.getFieldSizeY() / 20;
-
-    const auto fieldType = _board.getField(consideredX, consideredY);
+    const auto fieldType = _board.getField(newEye.x() + paddingX, newEye.y() + paddingY);
     if(fieldType == Board::FIELD_EMPTY || fieldType == Board::FIELD_PC)
     {
         _board.setField(_eye.x(), _eye.y(), Board::FIELD_EMPTY);
         _eye = newEye;
+        _eye[2] = newHeight;
         _board.setField(_eye.x(), _eye.y(), Board::FIELD_PC);
     }
 }
@@ -142,7 +136,7 @@ osg::Vec3 FPSManipulator::newCoords(const double distanceForward, const double d
 
 void FPSManipulator::allocAnimationData()
 {
-    _animationData = make_ref<osgGA::StandardManipulator::AnimationData>();
+    _animationData = make_ref<FPSAnimationData>();
 }
 
 void FPSManipulator::runAnimation(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us)
@@ -153,4 +147,15 @@ void FPSManipulator::runAnimation(const osgGA::GUIEventAdapter &ea, osgGA::GUIAc
         us.requestRedraw();
         us.requestContinuousUpdate(true);
     }
+}
+
+double FPSManipulator::getBobValue(const double progress) const
+{
+    if(progress == 1)
+        return 0;
+
+    if(progress < 0.5)
+        return BOBBING_HEIGHT * progress * 2;
+
+    return BOBBING_HEIGHT * (1.0 - progress) * 2;
 }
