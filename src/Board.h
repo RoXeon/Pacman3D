@@ -6,6 +6,8 @@
 
 #include <osg/Group>
 
+const int32_t TEXTURE_UNIT = 1;
+
 class Board
 {
 public:

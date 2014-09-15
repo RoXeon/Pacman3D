@@ -1,13 +1,25 @@
+// Light
 varying vec4 diffuse,ambientGlobal, ambient, ecPos;
 varying vec3 normal,halfVector;
+
+// Textures
 uniform sampler2D samplerName;
+
+// Fog
+varying float atten;
+varying float fogFactor;
+varying vec3 lightVec, viewVec;
 
 void main()
 {
+    // Light
     vec3 n,halfV,lightDir;
     float NdotL,NdotHV;
     vec4 color = ambientGlobal;
     float att,spotEffect;
+
+    vec3 ct,cf;
+    float intensity,at,af;
 
     /* a fragment shader can't write a verying variable, hence we need
     a new variable to store the normalized interpolated normal */
@@ -40,9 +52,10 @@ void main()
         }
     }
 
-    //color *= gl_Color;
-    color *= texture2D(samplerName, gl_TexCoord[1].st);
-    //finalColor += specular;
+    // Final color
+    vec3 lVec = normalize(lightVec);
+    vec3 vVec = normalize(viewVec);
+    vec4 finalColor = color * texture2D(samplerName, gl_TexCoord[1].st) * atten;
 
-    gl_FragColor = color;
+    gl_FragColor = mix(gl_Fog.color, finalColor, fogFactor );
 }

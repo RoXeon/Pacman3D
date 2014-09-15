@@ -15,27 +15,6 @@
 #include <osgDB/FileUtils>
 #include <osgDB/FileNameUtils>
 
-bool loadShaderSource(osg::Shader* obj, const std::string& fileName )
-{
-    std::string fqFileName = osgDB::findDataFile(fileName);
-    if( fqFileName.length() == 0 )
-    {
-        std::cout << "File \"" << fileName << "\" not found." << std::endl;
-        return false;
-    }
-    bool success = obj->loadShaderSourceFromFile( fqFileName.c_str());
-    if ( !success  )
-    {
-        std::cout << "Couldn't load file: " << fileName << std::endl;
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-
 osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, uint16_t FragmentCount, uint32_t LOD, std::string TextureFile) const
 {
     osg::Geode* CeilGeode = new osg::Geode();
@@ -78,11 +57,6 @@ osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, ui
                     CeilTexcoords->push_back(osg::Vec2d(i * sTexSizeX + sTexSizeX, j * sTexSizeY));
                     CeilTexcoords->push_back(osg::Vec2d(i * sTexSizeX + sTexSizeX, j * sTexSizeY + sTexSizeY));
                     CeilTexcoords->push_back(osg::Vec2d(i * sTexSizeX, j * sTexSizeY + sTexSizeY));
-//                    CeilTexcoords->push_back(osg::Vec2d(0, 0));
-//                    CeilTexcoords->push_back(osg::Vec2d(0, 0));
-//                    CeilTexcoords->push_back(osg::Vec2d(0, 0));
-//                    CeilTexcoords->push_back(osg::Vec2d(0, 0));
-
                 }
             }
         }
@@ -98,54 +72,28 @@ osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, ui
     osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
     normals->push_back( osg::Vec3(0.0f, 0.0f, 1.0f) );
 
-    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
-    colors->push_back( osg::Vec4(0.2f, 0.2f, 0.2f, 1.0f) );
-
     CeilGeometry->setNormalArray( normals );
     CeilGeometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
-    CeilGeometry->setColorArray( colors );
-    CeilGeometry->setTexCoordArray( 0, CeilTexcoords.get() );
+    CeilGeometry->setTexCoordArray(1, CeilTexcoords.get() );
 
-    CeilTexture->setDataVariance(osg::Object::DYNAMIC);
-    CeilTexture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
-    CeilTexture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
-    CeilTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP);
-    CeilTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP);
 
     osg::ref_ptr<osg::Material> material = new osg::Material;
     material->setAmbient( osg::Material::FRONT_AND_BACK, osg::Vec4(0.5f, 0.5f, 0.5f, 0.5f) );
     material->setDiffuse( osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 0.5f) );
-    //material->setSpecular( osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 0.5f) );
-    //material->setDataVariance(osg::Material::STATIC);
+    material->setSpecular( osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 0.5f) );
+    material->setDataVariance(osg::Material::STATIC);
     material->setShininess(osg::Material::FRONT_AND_BACK, 0.2);
-    material->setAlpha(osg::Material::FRONT_AND_BACK, 0.2);
-
-    const int32_t TEXTURE_UNIT = 1;
 
     //CeilGeode->getOrCreateStateSet()->setAttributeAndModes(material);
     CeilGeode->getOrCreateStateSet()->setTextureAttributeAndModes(TEXTURE_UNIT, CeilTexture.get() );
 
-    osg::TexEnv* blendTexEnv = new osg::TexEnv;
-    blendTexEnv->setMode(osg::TexEnv::BLEND);
-    CeilGeode->getOrCreateStateSet()->setTextureAttribute(1, blendTexEnv);
-
-    osg::TexEnv* decalTexEnv = new osg::TexEnv;
-    blendTexEnv->setMode(osg::TexEnv::DECAL);
-    CeilGeode->getOrCreateStateSet()->setTextureAttribute(2, decalTexEnv);
-
-    osg::ref_ptr<osg::ShadeModel> shadeModel = new osg::ShadeModel(osg::ShadeModel::SMOOTH);
-    CeilGeode->getOrCreateStateSet()->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
-
-    auto program = make_ref<osg::Program>();
-    auto fragmentObject = make_ref<osg::Shader>(osg::Shader::FRAGMENT);
-    loadShaderSource(fragmentObject, m_dbPath + "/shader.frag");
-    auto vertexObject = make_ref<osg::Shader>(osg::Shader::VERTEX);
-    loadShaderSource(vertexObject, m_dbPath + "/shader.vert");
-    program->addShader(vertexObject);
-    program->addShader(fragmentObject);
-    CeilGeode->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
-
-    CeilGeode->getOrCreateStateSet()->addUniform(new osg::Uniform("samplerName", osg::Uniform::SAMPLER_2D));
+//    osg::TexEnv* blendTexEnv = new osg::TexEnv;
+//    blendTexEnv->setMode(osg::TexEnv::BLEND);
+//    CeilGeode->getOrCreateStateSet()->setTextureAttribute(1, blendTexEnv);
+//
+//    osg::TexEnv* decalTexEnv = new osg::TexEnv;
+//    decalTexEnv->setMode(osg::TexEnv::DECAL);
+//    CeilGeode->getOrCreateStateSet()->setTextureAttribute(2, decalTexEnv);
 
     return osg::ref_ptr<osg::Node>(CeilGeode);
 }
@@ -429,15 +377,15 @@ osg::ref_ptr<osg::Node> Board::draw() const
                         }
                     }
 
-                    WallGeometry->setTexCoordArray( 0, texcoords.get() );
-                    WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
+                    WallGeometry->setTexCoordArray(1, texcoords.get() );
+                    WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(1, texture.get() );
 
                     WallGeometry->setNormalArray(normals);
                     WallGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
                     osg::ref_ptr<osg::Material> material = new osg::Material;
                     material->setAmbient( osg::Material::FRONT_AND_BACK, osg::Vec4(0.5f, 0.5f, 0.5f, 1.0f) );
-                    material->setDiffuse( osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f) );
+                    material->setDiffuse( osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 1.0f, 1.0f, 1.0f) );
                     material->setSpecular( osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f) );
                     material->setDataVariance(osg::Material::STATIC);
                     material->setShininess(osg::Material::FRONT_AND_BACK, 1.0);
@@ -460,7 +408,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
     CeilTranslate->addChild(CeilGeode);
 
     boardObj->addChild(FloorGeode);
-    //boardObj->addChild(CeilTranslate);
+    boardObj->addChild(CeilTranslate);
 
     return boardObj;
 }
