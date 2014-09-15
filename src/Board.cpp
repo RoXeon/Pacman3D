@@ -16,6 +16,98 @@
 #include <osgDB/FileUtils>
 #include <osgDB/FileNameUtils>
 
+
+Board::Board(std::vector<std::string> &def, double sizeX, double sizeY, std::string dbPath)
+    : m_sizeX(sizeX)
+    , m_sizeY(sizeY)
+    , m_dbPath(dbPath)
+{
+    assert(def.size() > 0);
+    m_fieldMap.resize(def.size());
+
+    auto height = def.size();
+    auto width = def[0].size();
+
+    for(auto elem : def) {
+        assert(elem.size() >= width);
+    }
+
+    for(auto& elem : m_fieldMap) {
+        elem.resize(width, FIELD_EMPTY);
+    }
+
+    for(auto i = 0; i < height; ++i)
+        for(auto j = 0; j < width; ++j)
+            m_fieldMap[i][j] = (def[i][j] == '*' ? FIELD_WALL : FIELD_EMPTY);
+}
+
+std::tuple<uint32_t, uint32_t> Board::getPlayerPosition() const
+{
+    return std::tuple<uint32_t, uint32_t>{m_pcX, m_pcY};
+}
+
+double Board::getSizeX() const
+{
+    return m_sizeX;
+}
+
+double Board::getSizeY() const
+{
+    return m_sizeY;
+}
+
+uint32_t Board::getFieldCountX() const
+{
+    return m_fieldMap[0].size();
+}
+
+uint32_t Board::getFieldCountY() const
+{
+    return m_fieldMap.size();
+}
+
+double Board::getFieldSizeX() const
+{
+    return m_sizeX / getFieldCountX();
+}
+
+double Board::getFieldSizeY() const
+{
+    return m_sizeY / getFieldCountY();
+}
+
+double Board::getFieldCenterX(uint32_t x) const
+{
+    return getFieldSizeX() / 2 + x * getFieldSizeX();
+}
+
+double Board::getFieldCenterY(uint32_t y) const
+{
+    return getSizeY() - getFieldSizeY() / 2 - y * getFieldSizeY();
+}
+
+Board::FieldType Board::getField(uint32_t x, uint32_t y) const
+{
+    return m_fieldMap[y][x];
+}
+
+void Board::setField(const double x, const double y, const FieldType fieldType)
+{
+    const auto intX = getFieldX(x);
+    const auto intY = getFieldY(y);
+    setField(intX, intY, fieldType);
+}
+
+void Board::setField(uint32_t x, uint32_t y, Board::FieldType type)
+{
+    if(type == FIELD_PC) {
+        m_pcX = x;
+        m_pcY = y;
+    }
+
+    m_fieldMap[y][x] = type;
+}
+
 osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, uint16_t FragmentCount, uint32_t LOD, std::string TextureFile) const
 {
     osg::Geode* CeilGeode = new osg::Geode();
@@ -100,87 +192,6 @@ osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, ui
     return osg::ref_ptr<osg::Node>(CeilGeode);
 }
 
-
-Board::Board(std::vector<std::string> &def, double sizeX, double sizeY, std::string dbPath)
-    : m_sizeX(sizeX)
-    , m_sizeY(sizeY)
-    , m_dbPath(dbPath)
-{
-    assert(def.size() > 0);
-    m_fieldMap.resize(def.size());
-
-    auto height = def.size();
-    auto width = def[0].size();
-
-    for(auto elem : def) {
-        assert(elem.size() >= width);
-    }
-
-    for(auto& elem : m_fieldMap) {
-        elem.resize(width, FIELD_EMPTY);
-    }
-
-    for(auto i = 0; i < height; ++i)
-        for(auto j = 0; j < width; ++j)
-            m_fieldMap[i][j] = (def[i][j] == '*' ? FIELD_WALL : FIELD_EMPTY);
-}
-
-double Board::getSizeX() const
-{
-    return m_sizeX;
-}
-
-double Board::getSizeY() const
-{
-    return m_sizeY;
-}
-
-uint32_t Board::getFieldCountX() const
-{
-    return m_fieldMap[0].size();
-}
-
-uint32_t Board::getFieldCountY() const
-{
-    return m_fieldMap.size();
-}
-
-double Board::getFieldSizeX() const
-{
-    return m_sizeX / getFieldCountX();
-}
-
-double Board::getFieldSizeY() const
-{
-    return m_sizeY / getFieldCountY();
-}
-
-double Board::getFieldCenterX(uint32_t x) const
-{
-    return getFieldSizeX() / 2 + x * getFieldSizeX();
-}
-
-double Board::getFieldCenterY(uint32_t y) const
-{
-    return getSizeY() - getFieldSizeY() / 2 - y * getFieldSizeY();
-}
-
-Board::FieldType Board::getField(uint32_t x, uint32_t y) const
-{
-    return m_fieldMap[y][x];
-}
-
-void Board::setField(const double x, const double y, const FieldType fieldType)
-{
-    const auto intX = getFieldX(x);
-    const auto intY = getFieldY(y);
-    setField(intX, intY, fieldType);
-}
-
-void Board::setField(uint32_t x, uint32_t y, Board::FieldType type)
-{
-    m_fieldMap[y][x] = type;
-}
 
 std::vector<std::tuple<uint32_t, uint32_t>> Board::getEmptyFields() const
 {

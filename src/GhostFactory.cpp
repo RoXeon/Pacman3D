@@ -1,12 +1,10 @@
 #include "GhostFactory.h"
 #include "make_ref.h"
-#include "NPC.h"
+#include "NPCMovementCallback.h"
 
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
-#include <osg/Geode>
-#include <osg/Drawable>
 
 #include <algorithm>
 #include <random>

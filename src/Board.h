@@ -36,6 +36,8 @@ public:
     uint32_t getFieldX(double x) const;
     uint32_t getFieldY(double y) const;
 
+    std::tuple<uint32_t, uint32_t> getPlayerPosition() const;
+
     FieldType getField(const double x, const double y) const;
     FieldType getField(uint32_t x, uint32_t y) const;
 
@@ -53,6 +55,8 @@ private:
     std::string m_dbPath;
 
     std::vector<std::vector<FieldType>> m_fieldMap;
+    uint32_t m_pcX;
+    uint32_t m_pcY;
 };
 
 #endif // board_h
