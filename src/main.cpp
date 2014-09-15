@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 
     double height = std::min(board.getFieldSizeX(), board.getFieldSizeY()) / 1.5;
 
-    auto fpsManipulator = make_ref<FPSManipulator>(board);
+    auto fpsManipulator = make_ref<FPSManipulator>(board, viewer);
     fpsManipulator->setHomePosition(
         osg::Vec3d(board.getFieldCenterX(1), board.getFieldCenterY(10), height),
         osg::Vec3d(0.0f, 0.0f, height),
@@ -152,11 +152,6 @@ int main(int argc, char** argv)
     root->getOrCreateStateSet()->addUniform(new osg::Uniform("samplerName", TEXTURE_UNIT));
     root->getOrCreateStateSet()->addUniform(new osg::Uniform("Shininess", BoardObjectsShininess));
     root->getOrCreateStateSet()->addUniform(new osg::Uniform("FogEnabled", FogEnabled));
-
-    for(osgViewer::GraphicsWindow *window: windows)
-    {
-        window->useCursor(false);
-    }
 
     // Optimize
     osgUtil::Optimizer optimzer;

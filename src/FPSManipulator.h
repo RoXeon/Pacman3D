@@ -1,11 +1,12 @@
 #include "Board.h"
 
 #include <osgGA/FirstPersonManipulator>
+#include <osgViewer/Viewer>
 
 class FPSManipulator: public osgGA::FirstPersonManipulator
 {
 public:
-    FPSManipulator(Board &b);
+    FPSManipulator(Board &b, osgViewer::Viewer &viewer);
 
     class FPSAnimationData: public osgGA::StandardManipulator::AnimationData
     {
@@ -32,6 +33,7 @@ private:
     double getBobValue(const double progress) const;
 
     Board &_board;
+    osgViewer::Viewer &_viewer;
 
     double _standardHeight = 8.0;
 

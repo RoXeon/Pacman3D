@@ -17,8 +17,9 @@ constexpr double BIDIRECTIONAL_MOVEMENT_NORMALIZATION = 0.7;
 template<typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 }
 
-FPSManipulator::FPSManipulator(Board &b)
+FPSManipulator::FPSManipulator(Board &b, osgViewer::Viewer &viewer)
     : _board(b)
+    , _viewer(viewer)
 {
     setAllowThrow(false);
 }
@@ -72,6 +73,13 @@ bool FPSManipulator::performMouseDeltaMovement(const float dx, const float dy)
 
 bool FPSManipulator::handleFrame(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us)
 {
+    osgViewer::Viewer::Windows windows;
+    _viewer.getWindows(windows);
+    for(osgViewer::GraphicsWindow *window: windows)
+    {
+        window->useCursor(false);
+    }
+
     if(_right || _forward) {
         runAnimation(ea, us);
 
