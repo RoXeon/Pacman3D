@@ -11,7 +11,7 @@ constexpr double FORWARD_SPRINT_DISTANCE = 15;
 constexpr double RIGHT_STEP_DISTANCE = 5;
 constexpr double STEP_TIME = .75;
 constexpr double BOBBING_HEIGHT = 0.3;
-constexpr double COLLISION_FIELD_PADDING = 0.05;
+constexpr double COLLISION_FIELD_PADDING = 0.1;
 constexpr double BIDIRECTIONAL_MOVEMENT_NORMALIZATION = 0.7;
 
 template<typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
