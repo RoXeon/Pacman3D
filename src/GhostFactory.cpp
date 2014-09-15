@@ -27,8 +27,7 @@ osg::ref_ptr<osg::Node> GhostFactory::drawGhost(Board& board, osg::Node* ghostMo
     ModelGeometry->setColorArray( colors );
     ModelGeometry->setColorBinding(osg::Geometry::BIND_OVERALL);
 
-
-
+    ghostModel->setCullingActive(true);
 
     double radius = std::min(board.getFieldSizeX(), board.getFieldSizeY()) / 1.5 / 2;
     auto rand = [](int i){ return std::rand()%i; };

@@ -87,6 +87,7 @@ osg::ref_ptr<osg::Node> Board::DrawSquare(double RootSizeX, double RootSizeY, ui
 
     //CeilGeode->getOrCreateStateSet()->setAttributeAndModes(material);
     CeilGeode->getOrCreateStateSet()->setTextureAttributeAndModes(TEXTURE_UNIT, CeilTexture.get() );
+    CeilGeode->setCullingActive(true);
 
 //    osg::TexEnv* blendTexEnv = new osg::TexEnv;
 //    blendTexEnv->setMode(osg::TexEnv::BLEND);
@@ -380,6 +381,8 @@ osg::ref_ptr<osg::Node> Board::draw() const
 
                     WallGeometry->setTexCoordArray(1, texcoords.get() );
                     WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(1, texture.get() );
+
+                    WallGeode->setCullingActive(true);
 
                     WallGeometry->setNormalArray(normals);
                     WallGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
