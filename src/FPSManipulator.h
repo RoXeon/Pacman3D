@@ -1,9 +1,11 @@
+#include "Board.h"
+
 #include <osgGA/FirstPersonManipulator>
 
 class FPSManipulator: public osgGA::FirstPersonManipulator
 {
 public:
-    FPSManipulator();
+    FPSManipulator(Board &b);
 
 protected:
     bool handleKeyDown(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us) override;
@@ -14,14 +16,15 @@ protected:
     void applyAnimationStep(const double currentProgress, const double previousProgress) override;
     bool handleMouseWheel(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us) override;
     bool performMovementLeftMouseButton(const double eventTimeDelta, const double dx, const double dy) override;
-    void moveForward(const double distance);
-    void moveRight(const double distance);
+    osg::Vec3 newCoords(const double distanceFront, const double distanceRight);
     void allocAnimationData() override;
 
     void runAnimation(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us);
 
 private:
     void getDirections(osg::Vec3 &forward, osg::Vec3 &right) const;
+
+    Board &_board;
 
     int _forward = 0;
     int _right = 0;

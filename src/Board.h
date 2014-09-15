@@ -13,7 +13,8 @@ public:
     {
         FIELD_EMPTY,
         FIELD_WALL,
-        FIELD_NPC
+        FIELD_NPC,
+        FIELD_PC
     };
 
     Board(std::vector<std::string> &def, double sizeX, double sizeY, std::string dbPath);
@@ -33,8 +34,12 @@ public:
     uint32_t getFieldX(double x) const;
     uint32_t getFieldY(double y) const;
 
+    FieldType getField(const double x, const double y) const;
     FieldType getField(uint32_t x, uint32_t y) const;
+
+    void setField(const double x, const double y, const FieldType fieldType);
     void setField(uint32_t x, uint32_t y, FieldType);
+
     std::vector<std::tuple<uint32_t, uint32_t>> getEmptyFields() const;
 
     osg::ref_ptr<osg::Node> draw() const;

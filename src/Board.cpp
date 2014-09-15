@@ -79,6 +79,13 @@ Board::FieldType Board::getField(uint32_t x, uint32_t y) const
     return m_fieldMap[y][x];
 }
 
+void Board::setField(const double x, const double y, const FieldType fieldType)
+{
+    const auto intX = getFieldX(x);
+    const auto intY = getFieldY(y);
+    setField(intX, intY, fieldType);
+}
+
 void Board::setField(uint32_t x, uint32_t y, Board::FieldType type)
 {
     m_fieldMap[y][x] = type;
@@ -106,6 +113,13 @@ uint32_t Board::getFieldX(double x) const
 uint32_t Board::getFieldY(double y) const
 {
     return getFieldCountY() - (1 + static_cast<uint32_t >(y / getFieldSizeY()));
+}
+
+Board::FieldType Board::getField(const double x, const double y) const
+{
+    const auto intX = getFieldX(x);
+    const auto intY = getFieldY(y);
+    return getField(intX, intY);
 }
 
 osg::ref_ptr<osg::Node> Board::draw() const
@@ -217,7 +231,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
                 //specify vertices
                 osg::Vec3dArray* WallVertices = new osg::Vec3dArray;
 
-                uint32_t lod = 10;
+                uint32_t lod = 50;
                 double totalSizeX = getFieldSizeX();
                 double totalSizeY = getFieldSizeY();
                 double totalSizeZ = blockSizeZ;

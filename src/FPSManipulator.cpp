@@ -11,7 +11,8 @@ constexpr double DECELERATION = 5;
 constexpr double ACCELERATION = 1.5;
 
 
-FPSManipulator::FPSManipulator()
+FPSManipulator::FPSManipulator(Board &b)
+    : _board(b)
 {
     setAllowThrow(false);
 }
@@ -38,6 +39,7 @@ bool FPSManipulator::handleKeyDown(const osgGA::GUIEventAdapter &ea, osgGA::GUIA
             return true;
         case osgGA::GUIEventAdapter::KEY_Space:
             home(ea, us);
+            _board.setField(_eye.x(), _eye.y(), Board::FIELD_PC);
             return true;
     }
 
@@ -78,7 +80,7 @@ bool FPSManipulator::handleFrame(const osgGA::GUIEventAdapter &ea, osgGA::GUIAct
 
     return osgGA::FirstPersonManipulator::handleFrame(ea, us);
 }
-
+#include <iostream>
 void FPSManipulator::applyAnimationStep(const double currentProgress, const double previousProgress)
 {
     const auto fraction = (currentProgress - previousProgress);
@@ -101,8 +103,20 @@ void FPSManipulator::applyAnimationStep(const double currentProgress, const doub
     const auto moveForwardBy = (currentProgress - previousProgress) * normalizedForwardSpeed;
     const auto moveRightBy = (currentProgress - previousProgress) * normalizedRightSpeed;
 
-    moveForward(moveForwardBy);
-    moveRight(moveRightBy);
+    auto newEye = newCoords(moveForwardBy, moveRightBy);
+
+    auto consideredX = newEye.x() + (newEye.x() - _eye.x() > 0 ? +1 : -1) * _board.getFieldSizeX() / 20;
+    auto consideredY = newEye.y() + (newEye.y() - _eye.y() > 0 ? +1 : -1) * _board.getFieldSizeY() / 20;
+
+    const auto fieldType = _board.getField(consideredX, consideredY);
+    if(fieldType == Board::FIELD_EMPTY || fieldType == Board::FIELD_PC)
+    {
+        _board.setField(_eye.x(), _eye.y(), Board::FIELD_EMPTY);
+        _eye = newEye;
+        _board.setField(_eye.x(), _eye.y(), Board::FIELD_PC);
+    }
+
+    std::cout << "x: " << _eye.x() << ", y: " << _eye.y() << ", z: " << _eye.z() << std::endl;
 }
 
 bool FPSManipulator::handleMouseWheel(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us)
@@ -115,22 +129,17 @@ bool FPSManipulator::performMovementLeftMouseButton(const double eventTimeDelta,
     return false;
 }
 
-void FPSManipulator::moveForward(const double distance)
+osg::Vec3 FPSManipulator::newCoords(const double distanceForward, const double distanceRight)
 {
     osg::Vec3 forward = _rotation * osg::Vec3{0, 0, -1};
     forward[2] = 0;
     forward.normalize();
 
-    _eye += forward * distance;
-}
-
-void FPSManipulator::moveRight(const double distance)
-{
     osg::Vec3 right = _rotation * osg::Vec3{1, 0, 0};
     right[2] = 0;
     right.normalize();
 
-    _eye += right * distance;
+    return _eye + forward * distanceForward + right * distanceRight;
 }
 
 void FPSManipulator::allocAnimationData()
