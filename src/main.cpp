@@ -14,6 +14,7 @@
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
 #include <osg/Fog>
+#include <osgUtil/Optimizer>
 #include <osgDB/ReadFile>
 #include <osgDB/FileUtils>
 #include <osgDB/FileNameUtils>
@@ -21,25 +22,25 @@
 #include <osgGA/OrbitManipulator>
 #include <osg/Texture2D>
 
-bool loadShaderSource(osg::Shader* obj, const std::string& fileName )
-{
-    std::string fqFileName = osgDB::findDataFile(fileName);
-    if( fqFileName.length() == 0 )
-    {
-        std::cout << "File \"" << fileName << "\" not found." << std::endl;
-        return false;
-    }
-    bool success = obj->loadShaderSourceFromFile( fqFileName.c_str());
-    if ( !success  )
-    {
-        std::cout << "Couldn't load file: " << fileName << std::endl;
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
+//bool loadShaderSource(osg::Shader* obj, const std::string& fileName )
+//{
+//    std::string fqFileName = osgDB::findDataFile(fileName);
+//    if( fqFileName.length() == 0 )
+//    {
+//        std::cout << "File \"" << fileName << "\" not found." << std::endl;
+//        return false;
+//    }
+//    bool success = obj->loadShaderSourceFromFile( fqFileName.c_str());
+//    if ( !success  )
+//    {
+//        std::cout << "Couldn't load file: " << fileName << std::endl;
+//        return false;
+//    }
+//    else
+//    {
+//        return true;
+//    }
+//}
 
 
 int main(int argc, char** argv)
@@ -83,8 +84,7 @@ int main(int argc, char** argv)
     fog->setDensity(0.03);
     fog->setColor( osg::Vec4(0.2, 0.2, 0.2, 1.0) );
 
-
-    root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
+    //root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
 
     // Print node graph
     InfoVisitor info;
@@ -134,14 +134,14 @@ int main(int argc, char** argv)
 
     root->addChild(lightSource);
 
-    auto program = make_ref<osg::Program>();
-    auto fragmentObject = make_ref<osg::Shader>(osg::Shader::FRAGMENT);
-    loadShaderSource(fragmentObject, dbPath + "/shader.frag");
-    auto vertexObject = make_ref<osg::Shader>(osg::Shader::VERTEX);
-    loadShaderSource(vertexObject, dbPath + "/shader.vert");
+//    auto program = make_ref<osg::Program>();
+//    auto fragmentObject = make_ref<osg::Shader>(osg::Shader::FRAGMENT);
+//    loadShaderSource(fragmentObject, dbPath + "/shader.frag");
+//    auto vertexObject = make_ref<osg::Shader>(osg::Shader::VERTEX);
+//    loadShaderSource(vertexObject, dbPath + "/shader.vert");
 //    program->addShader(vertexObject);
 //    program->addShader(fragmentObject);
-    root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
+//    root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
 //    root->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED);
 
 
@@ -149,6 +149,9 @@ int main(int argc, char** argv)
     {
         window->useCursor(false);
     }
+
+    //osgUtil::Optimizer optimzer;
+    //optimzer.optimize(root);
 
     return viewer.run();
 }

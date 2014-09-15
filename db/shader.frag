@@ -1,6 +1,6 @@
 varying vec4 diffuse,ambientGlobal, ambient, ecPos;
 varying vec3 normal,halfVector;
-varying float dist;
+
 
 
 void main()
@@ -18,7 +18,7 @@ void main()
     lightDir = vec3(gl_LightSource[0].position-ecPos);
 
     /* compute the distance to the light source to a varying variable*/
-    dist = length(lightDir);
+    float dist = length(lightDir);
 
     /* compute the dot product between normal and ldir */
     NdotL = max(dot(n,normalize(lightDir)),0.0);
@@ -37,9 +37,13 @@ void main()
 
             halfV = normalize(halfVector);
             NdotHV = max(dot(n,halfV),0.0);
-            color += att * gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(NdotHV,gl_FrontMaterial.shininess);
+            color += att * gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(NdotHV, 0.5);
         }
     }
+
+    color *= gl_Color;
+    color *= texture2D(1, gl_TexCoord[0].st);
+    //finalColor += specular;
 
     gl_FragColor = color;
 }
