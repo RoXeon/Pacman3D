@@ -77,11 +77,11 @@ int main(int argc, char** argv)
 
     // Setup fog
     osg::ref_ptr<osg::Fog> fog = new osg::Fog;
-    fog->setMode( osg::Fog::EXP );
+    fog->setMode( osg::Fog::EXP2 );
     fog->setStart( 0.0f );
     fog->setEnd(board.getFieldSizeX() * 20);
     fog->setDensity(0.03);
-    fog->setColor( osg::Vec4(0.5, 0.5, 0.5, 1.0) );
+    fog->setColor( osg::Vec4(0.05, 0.05, 0.05, 1.0) );
 
     root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
 
@@ -250,16 +250,13 @@ int main(int argc, char** argv)
     auto lightSource = make_ref<osg::LightSource>();
     lightSource->setReferenceFrame(osg::LightSource::ABSOLUTE_RF);
     auto light = lightSource->getLight();
-    light->setPosition(osg::Vec4{0, 0, 0, 1});
+    light->setPosition(osg::Vec4{0, 0, -1, 1});
     light->setDirection(osg::Vec3{0, 0, -1});
-    light->setSpotExponent(0.19);
-    light->setSpotCutoff(osg::DegreesToRadians(100.));
+    light->setSpotExponent(0.05);
+    light->setSpotCutoff(3.5);
     light->setDiffuse(osg::Vec4(1, 1, 1, 1));
-    light->setAmbient(osg::Vec4(0.2, 0.2, 0.2, 1));
+    light->setAmbient(osg::Vec4(0.6, 0.6, 0.6, 1));
     light->setSpecular(osg::Vec4(1, 1, 1, 1));
-    ////    light->setDirection(osg::Vec3(0, -1, 0));
-    ////    light->setAmbient(osg::Vec4(0, 0, 0, 1));
-    //    light->setPosition(osg::Vec4(0, 1, 1, 1));
 
     root->addChild(lightSource);
 
@@ -271,6 +268,8 @@ int main(int argc, char** argv)
 //    program->addShader(vertexObject);
 //    program->addShader(fragmentObject);
     root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
+//    root->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED);
+
 
     for(osgViewer::GraphicsWindow *window: windows)
     {

@@ -80,7 +80,7 @@ bool FPSManipulator::handleFrame(const osgGA::GUIEventAdapter &ea, osgGA::GUIAct
 
     return osgGA::FirstPersonManipulator::handleFrame(ea, us);
 }
-#include <iostream>
+
 void FPSManipulator::applyAnimationStep(const double currentProgress, const double previousProgress)
 {
     const auto fraction = (currentProgress - previousProgress);
@@ -115,8 +115,6 @@ void FPSManipulator::applyAnimationStep(const double currentProgress, const doub
         _eye = newEye;
         _board.setField(_eye.x(), _eye.y(), Board::FIELD_PC);
     }
-
-    std::cout << "x: " << _eye.x() << ", y: " << _eye.y() << ", z: " << _eye.z() << std::endl;
 }
 
 bool FPSManipulator::handleMouseWheel(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us)

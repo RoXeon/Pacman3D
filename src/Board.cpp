@@ -107,7 +107,7 @@ std::vector<std::tuple<uint32_t, uint32_t>> Board::getEmptyFields() const
 
 uint32_t Board::getFieldX(double x) const
 {
-    return static_cast<uint32_t >(x / getFieldSizeX());
+    return static_cast<uint32_t>(x / getFieldSizeX());
 }
 
 uint32_t Board::getFieldY(double y) const
@@ -240,21 +240,21 @@ osg::ref_ptr<osg::Node> Board::draw() const
                 double sizeY = totalSizeY / lod;
                 double sizeZ = totalSizeZ / lod;
 
-                for(int i = 0; i < lod; ++i) {
+                for(int i = lod - 1; i >= 0; --i) {
                     for(int j = 0; j < lod; ++j) {
-                        WallVertices->push_back(osg::Vec3d(0, j * sizeY, i * sizeZ));
-                        WallVertices->push_back(osg::Vec3d(0, j * sizeY, i * sizeZ + sizeZ));
-                        WallVertices->push_back(osg::Vec3d(0, j * sizeY + sizeY, i * sizeZ + sizeZ));
-                        WallVertices->push_back(osg::Vec3d(0, j * sizeY + sizeY, i * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(0, i * sizeY, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(0, i * sizeY + sizeY, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(0, i * sizeY + sizeY, j * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(0, i * sizeY, j * sizeZ + sizeZ));
                     }
                 }
 
-                for(int i = 0; i < lod; ++i) {
+                for(int i = lod - 1; i >= 0; --i) {
                     for(int j = 0; j < lod; ++j) {
-                        WallVertices->push_back(osg::Vec3d(totalSizeX, j * sizeY, i * sizeZ));
-                        WallVertices->push_back(osg::Vec3d(totalSizeX, j * sizeY, i * sizeZ + sizeZ));
-                        WallVertices->push_back(osg::Vec3d(totalSizeX, j * sizeY + sizeY, i * sizeZ + sizeZ));
-                        WallVertices->push_back(osg::Vec3d(totalSizeX, j * sizeY + sizeY, i * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(totalSizeX, i * sizeY, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(totalSizeX, i * sizeY + sizeY, j * sizeZ));
+                        WallVertices->push_back(osg::Vec3d(totalSizeX, i * sizeY + sizeY, j * sizeZ + sizeZ));
+                        WallVertices->push_back(osg::Vec3d(totalSizeX, i * sizeY, j * sizeZ + sizeZ));
                     }
                 }
 
@@ -285,6 +285,55 @@ osg::ref_ptr<osg::Node> Board::draw() const
 
                 WallGeometry->addPrimitiveSet(WallBase);
 
+                osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
+
+                double tsizeX = 1.0 / lod;
+                double tsizeY = 1.0 / lod;
+
+                for(int i = 0; i < lod; ++i) {
+                    for(int j = 0; j < lod; ++j) {
+                        texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY + tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY + tsizeY));
+                    }
+                }
+
+                for(int i = 0; i < lod; ++i) {
+                    for(int j = 0; j < lod; ++j) {
+                        texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY + tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY + tsizeY));
+                    }
+                }
+
+                for(int i = 0; i < lod; ++i) {
+                    for(int j = 0; j < lod; ++j) {
+                        texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY + tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY + tsizeY));
+                    }
+                }
+
+                for(int i = 0; i < lod; ++i) {
+                    for(int j = 0; j < lod; ++j) {
+                        texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX + tsizeX, j * tsizeY + tsizeY));
+                        texcoords->push_back(osg::Vec2d(i * tsizeX, j * tsizeY + tsizeY));
+                    }
+                }
+
+                WallGeometry->setTexCoordArray( 0, texcoords.get() );
+
+                osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
+                osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/wall3_small.bmp" );
+                texture->setImage( image.get() );
+
+                WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
+
                 auto translate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(getFieldCenterX(x) - getFieldSizeX() / 2, getFieldCenterY(y) - getFieldSizeY() / 2, 0));
 
                 translate->addChild(WallGeode);
@@ -294,12 +343,61 @@ osg::ref_ptr<osg::Node> Board::draw() const
         }
     }
 
-    auto floor = make_ref<osg::ShapeDrawable>();
-    floor->setShape( new osg::Box( osg::Vec3(getSizeX() / 2, getSizeY() / 2, 0.0f) - normalize, getSizeX(), getSizeY(), 0.5f) );
-    auto floor_geode = make_ref<osg::Geode>();
-    floor_geode->addDrawable(floor);
+    osg::Geode* FloorGeode = new osg::Geode();
+    osg::Geometry* FloorGeometry = new osg::Geometry();
 
-    boardObj->addChild(floor_geode);
+    FloorGeode->addDrawable(FloorGeometry);
+    //specify vertices
+    osg::Vec3dArray* FloorVertices = new osg::Vec3dArray;
+
+    uint32_t FloorLOD = 1000;
+    double totalSizeX = getSizeX();
+    double totalSizeY = getSizeY();
+
+    double sizeX = totalSizeX / FloorLOD;
+    double sizeY = totalSizeY / FloorLOD;
+
+    for(int i = 0; i < FloorLOD; ++i) {
+        for(int j = 0; j < FloorLOD; ++j) {
+            FloorVertices->push_back(osg::Vec3d(i * sizeX, j * sizeY, 0));
+            FloorVertices->push_back(osg::Vec3d(i * sizeX + sizeX, j * sizeY, 0));
+            FloorVertices->push_back(osg::Vec3d(i * sizeX + sizeX, j * sizeY + sizeY, 0));
+            FloorVertices->push_back(osg::Vec3d(i * sizeX, j * sizeY + sizeY, 0));
+        }
+    }
+
+    FloorGeometry->setVertexArray( FloorVertices );
+
+    //specify the kind of geometry we want to draw here
+    osg::DrawElementsUInt* FloorBase = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
+    for(int i = 0; i < FloorLOD * FloorLOD * 4; ++i)
+        FloorBase->push_back(i);
+
+    FloorGeometry->addPrimitiveSet(FloorBase);
+
+    osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
+
+    double tsizeX = 1.0;
+    double tsizeY = 1.0;
+
+    for(int i = 0; i < FloorLOD; ++i) {
+        for(int j = 0; j < FloorLOD; ++j) {
+            texcoords->push_back(osg::Vec2d(0, 0));
+            texcoords->push_back(osg::Vec2d(tsizeX, 0));
+            texcoords->push_back(osg::Vec2d(tsizeX, tsizeY));
+            texcoords->push_back(osg::Vec2d(0, tsizeY));
+        }
+    }
+
+    FloorGeometry->setTexCoordArray( 0, texcoords.get() );
+
+    osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
+    osg::ref_ptr<osg::Image> image = osgDB::readImageFile( m_dbPath + "/floor.bmp" );
+    texture->setImage( image.get() );
+
+    FloorGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
+
+    boardObj->addChild(FloorGeode);
 
     return boardObj;
 }
