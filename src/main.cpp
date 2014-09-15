@@ -82,7 +82,7 @@ int main(int argc, char** argv)
         fog->setMode( osg::Fog::EXP2 );
         fog->setStart( 0.0f );
         fog->setEnd(board.getFieldSizeX() * 20);
-        fog->setDensity(0.02);
+        fog->setDensity(0.015);
         fog->setColor( osg::Vec4(0., 0., 0., 1.0) );
 
         root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     auto lightSource = make_ref<osg::LightSource>();
     lightSource->setReferenceFrame(osg::LightSource::ABSOLUTE_RF);
     auto light = lightSource->getLight();
-    const osg::Vec3 lightPosition{1.5, -.5, -1}; // right, down, front
+    const osg::Vec3 lightPosition{1.5, -1, -1}; // right, down, front
     light->setPosition(osg::Vec4{lightPosition, 1});
     light->setDirection(osg::Vec3{0, 0, -1} * 30 - lightPosition);
     light->setSpotExponent(200);
@@ -130,8 +130,8 @@ int main(int argc, char** argv)
     light->setDiffuse(osg::Vec4(1, 1, 1, 1));
     light->setAmbient(osg::Vec4(0.6, 0.6, 0.6, 1));
     light->setSpecular(osg::Vec4(1, 1, 1, 1));
-    light->setLinearAttenuation(0.005);
-    light->setConstantAttenuation(0);
+    light->setLinearAttenuation(0.001);
+    light->setConstantAttenuation(0.5);
 
     root->addChild(lightSource);
 
