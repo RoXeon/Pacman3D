@@ -15,9 +15,32 @@
 #include <osg/MatrixTransform>
 #include <osg/Fog>
 #include <osgDB/ReadFile>
+#include <osgDB/FileUtils>
+#include <osgDB/FileNameUtils>
 #include <osgGA/KeySwitchMatrixManipulator>
 #include <osgGA/OrbitManipulator>
 #include <osg/Texture2D>
+
+bool loadShaderSource(osg::Shader* obj, const std::string& fileName )
+{
+    std::string fqFileName = osgDB::findDataFile(fileName);
+    if( fqFileName.length() == 0 )
+    {
+        std::cout << "File \"" << fileName << "\" not found." << std::endl;
+        return false;
+    }
+    bool success = obj->loadShaderSourceFromFile( fqFileName.c_str());
+    if ( !success  )
+    {
+        std::cout << "Couldn't load file: " << fileName << std::endl;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 
 int main(int argc, char** argv)
 {
@@ -220,6 +243,33 @@ int main(int argc, char** argv)
     defaultLight->setDiffuse(osg::Vec4(1, 1, 1, 1));
     defaultLight->setAmbient(osg::Vec4(1, 1, 1, 1));
     defaultLight->setSpecular(osg::Vec4(1, 1, 1, 1));
+
+    auto lightSource = make_ref<osg::LightSource>();
+    lightSource->setReferenceFrame(osg::LightSource::ABSOLUTE_RF);
+    auto light = lightSource->getLight();
+    light->setPosition(osg::Vec4{0, 0, 0, 1});
+    //    light->setDirection(osg::Vec3{0, 1, 0});
+
+    //    light->setLightNum(2);
+    light->setSpotExponent(2);
+    light->setSpotCutoff(osg::DegreesToRadians(25.));
+    light->setDiffuse(osg::Vec4(1, 1, 1, 1));
+    light->setAmbient(osg::Vec4(0.2, 0.2, 0.2, 1));
+    light->setSpecular(osg::Vec4(1, 1, 1, 1));
+    ////    light->setDirection(osg::Vec3(0, -1, 0));
+    ////    light->setAmbient(osg::Vec4(0, 0, 0, 1));
+    //    light->setPosition(osg::Vec4(0, 1, 1, 1));
+
+    root->addChild(lightSource);
+
+    auto program = make_ref<osg::Program>();
+    auto fragmentObject = make_ref<osg::Shader>(osg::Shader::FRAGMENT);
+    loadShaderSource(fragmentObject, "/home/konrad/Pacman3D/shaders/shader.frag");
+    auto vertexObject = make_ref<osg::Shader>(osg::Shader::VERTEX);
+    loadShaderSource(vertexObject, "/home/konrad/Pacman3D/shaders/shader.vert");
+    program->addShader(vertexObject);
+    program->addShader(fragmentObject);
+    root->getOrCreateStateSet()->setAttributeAndModes(program, osg::StateAttribute::ON);
 
     for(osgViewer::GraphicsWindow *window: windows)
     {

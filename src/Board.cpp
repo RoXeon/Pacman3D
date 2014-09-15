@@ -217,7 +217,7 @@ osg::ref_ptr<osg::Node> Board::draw() const
                 //specify vertices
                 osg::Vec3dArray* WallVertices = new osg::Vec3dArray;
 
-                uint32_t lod = 100;
+                uint32_t lod = 10;
                 double totalSizeX = getFieldSizeX();
                 double totalSizeY = getFieldSizeY();
                 double totalSizeZ = blockSizeZ;
