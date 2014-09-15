@@ -77,13 +77,13 @@ int main(int argc, char** argv)
 
     // Setup fog
     osg::ref_ptr<osg::Fog> fog = new osg::Fog;
-    fog->setMode( osg::Fog::EXP );
+    fog->setMode( osg::Fog::EXP2 );
     fog->setStart( 0.0f );
     fog->setEnd(board.getFieldSizeX() * 20);
     fog->setDensity(0.03);
-    fog->setColor( osg::Vec4(0.5, 0.5, 0.5, 1.0) );
+    fog->setColor( osg::Vec4(0.2, 0.2, 0.2, 1.0) );
 
-    //root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
+    root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
 
     // Print node graph
     InfoVisitor info;
