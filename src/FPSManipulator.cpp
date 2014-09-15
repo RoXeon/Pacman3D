@@ -76,7 +76,7 @@ bool FPSManipulator::handleFrame(const osgGA::GUIEventAdapter &ea, osgGA::GUIAct
     if(_right || _forward)
         runAnimation(ea, us);
 
-    osgGA::FirstPersonManipulator::handleFrame(ea, us);
+    return osgGA::FirstPersonManipulator::handleFrame(ea, us);
 }
 
 void FPSManipulator::applyAnimationStep(const double currentProgress, const double previousProgress)

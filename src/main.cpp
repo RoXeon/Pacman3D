@@ -232,6 +232,9 @@ int main(int argc, char** argv)
 
 //    WallGeode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get() );
 
+    auto translate = make_ref<osg::MatrixTransform>(osg::Matrix::translate(50, 40, 0));
+    translate->addChild(WallGeode);
+
     viewer.setSceneData( root );
 
     osgViewer::Viewer::Windows windows;
