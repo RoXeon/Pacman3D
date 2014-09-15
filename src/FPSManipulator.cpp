@@ -17,9 +17,10 @@ constexpr double BIDIRECTIONAL_MOVEMENT_NORMALIZATION = 0.7;
 template<typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 }
 
-FPSManipulator::FPSManipulator(Board &b, osgViewer::Viewer &viewer)
+FPSManipulator::FPSManipulator(Board &b, osgViewer::Viewer &viewer, osg::Light &flashlight)
     : _board(b)
     , _viewer(viewer)
+    , _flashlight(flashlight)
 {
     setAllowThrow(false);
 }
@@ -34,6 +35,7 @@ bool FPSManipulator::handleKeyDown(const osgGA::GUIEventAdapter &ea, osgGA::GUIA
         case osgGA::GUIEventAdapter::KEY_S: _forward = -1; return true;
         case osgGA::GUIEventAdapter::KEY_A: _right   = -1; return true;
         case osgGA::GUIEventAdapter::KEY_D: _right   =  1; return true;
+        case osgGA::GUIEventAdapter::KEY_F: toggleFlashlight(); return true;
         case osgGA::GUIEventAdapter::KEY_Space:
             home(ea, us);
             _standardHeight = _eye.z();
@@ -157,6 +159,22 @@ void FPSManipulator::runAnimation(const osgGA::GUIEventAdapter &ea, osgGA::GUIAc
         _animationData->start(ea.getTime());
         us.requestRedraw();
         us.requestContinuousUpdate(true);
+    }
+}
+
+void FPSManipulator::toggleFlashlight()
+{
+    if(_flashlight.getDiffuse() == osg::Vec4{})
+    {
+        _flashlight.setDiffuse(osg::Vec4(1, 1, 1, 1));
+        _flashlight.setAmbient(osg::Vec4(0.6, 0.6, 0.6, 1));
+        _flashlight.setSpecular(osg::Vec4(1, 1, 1, 1));
+    }
+    else
+    {
+        _flashlight.setDiffuse(osg::Vec4{});
+        _flashlight.setAmbient(osg::Vec4{});
+        _flashlight.setSpecular(osg::Vec4{});
     }
 }
 

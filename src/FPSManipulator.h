@@ -6,7 +6,7 @@
 class FPSManipulator: public osgGA::FirstPersonManipulator
 {
 public:
-    FPSManipulator(Board &b, osgViewer::Viewer &viewer);
+    FPSManipulator(Board &b, osgViewer::Viewer &viewer, osg::Light &flashlight);
 
     class FPSAnimationData: public osgGA::StandardManipulator::AnimationData
     {
@@ -30,10 +30,12 @@ protected:
     void runAnimation(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &us);
 
 private:
+    void toggleFlashlight();
     double getBobValue(const double progress) const;
 
     Board &_board;
     osgViewer::Viewer &_viewer;
+    osg::Light &_flashlight;
 
     double _standardHeight = 8.0;
 
