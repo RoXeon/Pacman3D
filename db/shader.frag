@@ -1,3 +1,5 @@
+#version 440
+
 // Light
 varying vec4 diffuse,ambientGlobal, ambient, ecPos;
 varying vec3 normal,halfVector;

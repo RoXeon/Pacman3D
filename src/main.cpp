@@ -82,7 +82,7 @@ int main(int argc, char** argv)
         fog->setMode( osg::Fog::EXP2 );
         fog->setStart( 0.0f );
         fog->setEnd(board.getFieldSizeX() * 20);
-        fog->setDensity(0.015);
+        fog->setDensity(0.0135);
         fog->setColor( osg::Vec4(0., 0., 0., 1.0) );
 
         root->getOrCreateStateSet()->setAttributeAndModes(fog.get());
