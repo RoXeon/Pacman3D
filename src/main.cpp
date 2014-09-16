@@ -98,8 +98,8 @@ int main(int argc, char** argv)
     const osg::Vec3 lightPosition{1.5, -1, -1}; // right, down, front
     light->setPosition(osg::Vec4{lightPosition, 1});
     light->setDirection(osg::Vec3{0, 0, -1} * 30 - lightPosition);
-    light->setSpotExponent(200);
-    light->setSpotCutoff(100);
+    light->setSpotExponent(60);
+    light->setSpotCutoff(90);
     light->setDiffuse(osg::Vec4(1, 1, 1, 1));
     light->setAmbient(osg::Vec4(0.6, 0.6, 0.6, 1));
     light->setSpecular(osg::Vec4(1, 1, 1, 1));
